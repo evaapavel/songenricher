@@ -1,0 +1,45 @@
+paja@debd6jojmq:~/GIT/newps/asap$ git pull origin PES_1-1
+Enter passphrase for key '/home/paja/.ssh/id_dsa': 
+remote: Enumerating objects: 313, done.
+remote: Counting objects: 100% (313/313), done.
+remote: Compressing objects: 100% (108/108), done.
+remote: Total 313 (delta 146), reused 312 (delta 146)
+Receiving objects: 100% (313/313), 60.72 KiB | 0 bytes/s, done.
+Resolving deltas: 100% (146/146), completed with 37 local objects.
+From ssh://gitlab.newps.cz:10022/newps/asap
+ * branch              PES_1-1    -> FETCH_HEAD
+   29e72f5f..d3839745  PES_1-1    -> origin/PES_1-1
+Updating 29e72f5f..d3839745
+Fast-forward
+ .gitignore                                                                                          |   2 +-
+ web/src/db/current/patch_db.sql                                                                     |   1 +
+ web/src/db/current/patches/167_2019_11_12.sql                                                       |  96 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ web/src/main/java/cz/newps/asap/web/backoffice/controller/DefinitionController.java                 |  21 ++++++++++++++++++---
+ web/src/main/java/cz/newps/asap/web/bo/PeriodStringConverter.java                                   |  21 +++++++++++++++++++++
+ web/src/main/java/cz/newps/asap/web/bo/ProductBo.java                                               |  19 ++++++++++++++++---
+ web/src/main/java/cz/newps/asap/web/controller/InitRequestInterceptor.java                          |   1 +
+ web/src/main/java/cz/newps/asap/web/controller/UserObligationController.java                        |  45 ++++++++++++++++++++++++++++++++++++++++++++-
+ web/src/main/java/cz/newps/asap/web/controller/WelcomeController.java                               |   4 +---
+ web/src/main/java/cz/newps/asap/web/controller/converter/ProductConverter.java                      |   1 -
+ web/src/main/java/cz/newps/asap/web/dao/DataboxDao.java                                             |  16 +++++++++-------
+ web/src/main/java/cz/newps/asap/web/dao/ProductDao.java                                             |   9 ---------
+ web/src/main/java/cz/newps/asap/web/dao/RegisteredUserProductDao.java                               |  13 -------------
+ web/src/main/java/cz/newps/asap/web/dto/ProductDto.java                                             |   1 -
+ web/src/main/java/cz/newps/asap/web/dto/definition/NameDto.java                                     |   2 ++
+ web/src/main/java/cz/newps/asap/web/service/IRegisteredUserProductService.java                      |   8 +++++++-
+ web/src/main/java/cz/newps/asap/web/service/IUserObligationService.java                             |   9 +++++++++
+ web/src/main/java/cz/newps/asap/web/service/ProductServiceImpl.java                                 |  35 +++++++++++++++++++++--------------
+ web/src/main/java/cz/newps/asap/web/service/ProfileServiceImpl.java                                 |   2 +-
+ web/src/main/java/cz/newps/asap/web/service/RegisteredUserProductServiceImpl.java                   |  20 ++++++++++++++++++--
+ web/src/main/java/cz/newps/asap/web/service/UserObligationServiceImpl.java                          | 101 ++++++++++++++++++++++++++++++++++++++++++++++++++---------------------------------------------------
+ web/src/main/java/cz/newps/asap/web/util/CalendarUtils.java                                         |  43 +++++++++++++++++++++++++++++++++++++++++--
+ web/src/main/java/cz/newps/asap/web/util/obligationDefinition/ObligationDefinitionObjectMapper.java |   5 +++++
+ web/src/main/webapp/WEB-INF/view/definition/list.jsp                                                |  52 +++++++++++++++++++---------------------------------
+ web/src/main/webapp/WEB-INF/view/products/list.jsp                                                  |   3 ---
+ web/src/main/webapp/WEB-INF/view/welcome.jsp                                                        |  60 ++++++++++++++++++++++++++++++++++++++++++++++++------------
+ web/src/main/webapp/static/js/general.js                                                            |   8 ++++----
+ web/src/test/java/cz/newps/asap/web/service/ProductServiceImplTest.java                             |  77 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 28 files changed, 510 insertions(+), 165 deletions(-)
+ create mode 100644 web/src/db/current/patches/167_2019_11_12.sql
+ create mode 100644 web/src/main/java/cz/newps/asap/web/bo/PeriodStringConverter.java
+ create mode 100644 web/src/test/java/cz/newps/asap/web/service/ProductServiceImplTest.java
