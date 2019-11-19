@@ -26,7 +26,8 @@ public class EnsembleLoaderTest {
         System.out.println("Starting...");
 
         // Prepare a path to the file.
-        String pathToFile = "src/main/resources/test.txt";
+        //String pathToFile = "src/main/resources/test.txt";
+        String pathToFile = "src/main/resources/testLastLineWithoutEOLN.txt";
 
         // Prepare a Path object.
         Path path = Paths.get(pathToFile);

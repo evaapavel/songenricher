@@ -100,7 +100,9 @@ public class EnsembleLoader implements Function<Path, Ensemble> {
 
             // Process the rest of the bytes read.
             // There's nothing to process here since the last operation encountered EOF.
-            // Actually, there might still be something to process (for Mac files, if the last line ends with CR).
+            // Actually, there might still be something to process:
+            // (a) For Mac files, if the last line ends with CR.
+            // (b) For any text file, if the last line has no EOLN.
             processBytes(buffer, 0, liner);
 
             // Store the file contents into the Ensemble object.
@@ -130,8 +132,10 @@ public class EnsembleLoader implements Function<Path, Ensemble> {
 
         // Try to extract new lines from the transformer.
         //List<String> linesToAdd = liner.getLines();
-        boolean forceProcessCR = (bytesRead == 0);
-        List<String> linesToAdd = liner.getLines(forceProcessCR);
+        //boolean forceProcessCR = (bytesRead == 0);
+        //List<String> linesToAdd = liner.getLines(forceProcessCR);
+        boolean forceNonstandardEOLN = (bytesRead == 0);
+        List<String> linesToAdd = liner.getLines(forceNonstandardEOLN);
 
         // Add the lines to the Ensemble object.
         //lines.addAll(linesToAdd);

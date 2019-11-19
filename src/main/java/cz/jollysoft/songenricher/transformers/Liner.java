@@ -98,14 +98,16 @@ public class Liner {
 
 
     //public List<String> getLines() {
+    //public List<String> getLines(boolean forceProcessCR) {
+    //* @param forceProcessCR True :-: force the processing of a CR byte even if at the very end of the range within the byte array where the bytes read are stored, false :-: await a LF byte past a CR byte.
     /**
      * Tries to extract lines from the inner array.
      * Prevent undesirable issues with not processing the last line of the file on Mac machines.
      * 
-     * @param forceProcessCR True :-: force the processing of a CR byte even if at the very end of the range within the byte array where the bytes read are stored, false :-: await a LF byte past a CR byte.
+     * @param forceNonstandardEOLN True :-: force either (a) the processing of a CR byte as the last byte of the file or (b) the processing of the last line of the file where there's no EOLN, false :-: standard behaviour, all other lines but the very last one.
      * @return Returns strings that represent lines taken from the inner byte array.
      */
-    public List<String> getLines(boolean forceProcessCR) {
+    public List<String> getLines(boolean forceNonstandardEOLN) {
 
         // Prepare a resulting list (for the extracted lines).
         List<String> lines = new ArrayList<>();
@@ -117,7 +119,8 @@ public class Liner {
 
             // Find a next EOLN sequence (if any).
             //int posEOLN = findEOLN(pos, currentPosition);
-            int posEOLN = findEOLN(pos, currentPosition, forceProcessCR);
+            //int posEOLN = findEOLN(pos, currentPosition, forceProcessCR);
+            int posEOLN = findEOLN(pos, currentPosition, forceNonstandardEOLN);
 
             // End condition check.
             if (posEOLN == -1) {
@@ -131,7 +134,8 @@ public class Liner {
             lines.add(line);
 
             // Move past the EOLN sequence.
-            int lengthOfEOLN = checkLengthOfEOLN(posEOLN, pos, currentPosition);
+            //int lengthOfEOLN = checkLengthOfEOLN(posEOLN, pos, currentPosition);
+            int lengthOfEOLN = checkLengthOfEOLN(posEOLN, pos, currentPosition, forceNonstandardEOLN);
             //pos += lengthOfEOLN;
             pos = posEOLN + lengthOfEOLN;
 
@@ -155,15 +159,19 @@ public class Liner {
 
 
     //private int findEOLN(int startPos, int endPos) {
+    //private int findEOLN(int startPos, int endPos, boolean forceProcessCR) {
+    //* @param forceProcessCR True :-: do NOT EXPECT a LF byte if a CR byte have been found AT THE END of the read-bytes range, false :-: do EXPECT a LF byte after a CR byte.
     /**
      * Tries to find the first EOLN byte (LF or CR) within the inner byte array.
      * 
      * @param startPos Starting position (index of the first byte to check).
      * @param endPos Ending position (index of the first byte NOT TO CHECK).
-     * @param forceProcessCR True :-: do NOT EXPECT a LF byte if a CR byte have been found AT THE END of the read-bytes range, false :-: do EXPECT a LF byte after a CR byte.
+     * @param forceNonstandardEOLN True :-: force either (a) the processing of a CR byte as the last byte of the file or (b) the processing of the last line of the file where there's no EOLN, false :-: standard behaviour, all other lines but the very last one.
      * @return Returns the position of the first LF or CR byte. Or -1 if no such byte has been encountered within the specified range.
      */
-    private int findEOLN(int startPos, int endPos, boolean forceProcessCR) {
+    private int findEOLN(int startPos, int endPos, boolean forceNonstandardEOLN) {
+
+        // Try to find the first byte (in OS's other than Windows, this will be the last one as well) of an EOLN sequence.
         for (int pos = startPos; pos < endPos; pos++) {
             if ( (bytes[pos] == LF) || (bytes[pos] == CR) ) {
                 //return pos;
@@ -174,7 +182,8 @@ public class Liner {
                 // after next reading from the input file channel is achieved. This would result in one empty line to be extracted
                 // which is not in the original file. For this situation, we would rather return -1 (and wait for more bytes to be read).
                 //if ( (pos == endPos - 1) && (bytes[pos] == CR) ) {
-                if ( (pos == endPos - 1) && (bytes[pos] == CR) && ( ! forceProcessCR ) ) {
+                //if ( (pos == endPos - 1) && (bytes[pos] == CR) && ( ! forceProcessCR ) ) {
+                if ( (pos == endPos - 1) && (bytes[pos] == CR) && ( ! forceNonstandardEOLN ) ) {
                     // Await more bytes from the file.
                     // An additional LF could be read immediately after this CR.
                     return -1;
@@ -182,20 +191,36 @@ public class Liner {
                 return pos;
             }
         }
+
+        // No EOLN byte found.
+        if ( (forceNonstandardEOLN) && (endPos > startPos) ) {
+            // If this is the last line of the file and there is at least one character (byte) to be processed,
+            // then pretend an EOLN byte to be at the ending position (where there is actually nothing to check).
+            return endPos;
+        }
         return -1;
+
     }
 
 
 
+    //private int checkLengthOfEOLN(int posEOLN, int startPos, int endPos) {
     /**
      * Checks for the length of the EOLN sequence. There might be either LF or CR+LF or CR.
      * 
      * @param posEOLN Position of the FIRST byte of the EOLN sequence.
      * @param startPos Starting position of the search.
      * @param endPos Ending position of the search.
-     * @return Returns the length (in bytes) of the EOLN sequence (1 or 2).
+     * @param forceNonstandardEOLN True :-: force either (a) the processing of a CR byte as the last byte of the file or (b) the processing of the last line of the file where there's no EOLN, false :-: standard behaviour, all other lines but the very last one.
+     * @return Returns the length (in bytes) of the EOLN sequence (1 or 2). The length of 0 (zero) is returned for the last line of the file without any EOLN at all.
      */
-    private int checkLengthOfEOLN(int posEOLN, int startPos, int endPos) {
+    private int checkLengthOfEOLN(int posEOLN, int startPos, int endPos, boolean forceNonstandardEOLN) {
+
+        // Before the integrity check, allow a line (the very last line of the file) without any EOLN.
+        // In such a case, the position of an "imaginary" EOLN sequence is set to the ending position.
+        if ( (posEOLN == endPos) && (forceNonstandardEOLN) && (endPos > startPos) ) {
+            return 0;
+        }
 
         // Integrity check.
         if ( ! ((posEOLN >= startPos) && (posEOLN < endPos)) ) {

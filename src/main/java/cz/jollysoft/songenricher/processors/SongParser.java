@@ -21,7 +21,8 @@ public class SongParser implements Function<Ensemble, Song> {
 
     @Override
     public Song apply(Ensemble ensemble) {
-        return new Song();
+        //return new Song();
+        return new Song(ensemble);
     }
 
 
