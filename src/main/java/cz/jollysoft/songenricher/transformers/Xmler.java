@@ -2,11 +2,11 @@ package cz.jollysoft.songenricher.transformers;
 
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.ArrayDeque;
+//import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Iterator;
 //import java.util.Map;
-import java.util.Deque;
+//import java.util.Deque;
 
 import cz.jollysoft.songenricher.transformers.xml.ElementToken;
 import cz.jollysoft.songenricher.transformers.xml.ProcessingToken;
@@ -14,8 +14,8 @@ import cz.jollysoft.songenricher.transformers.xml.TextToken;
 import cz.jollysoft.songenricher.transformers.xml.Token;
 import cz.jollysoft.songenricher.xmlpieces.Document;
 import cz.jollysoft.songenricher.xmlpieces.Element;
-import cz.jollysoft.songenricher.xmlpieces.Piece;
-import cz.jollysoft.songenricher.xmlpieces.Text;
+//import cz.jollysoft.songenricher.xmlpieces.Piece;
+//import cz.jollysoft.songenricher.xmlpieces.Text;
 
 
 
@@ -658,29 +658,31 @@ public class Xmler {
 
         // Build the XML document.
         // Process the remaining tokens.
-        Deque<Piece> stackOfXmlPieces = new ArrayDeque<>();
+        //Deque<Piece> stackOfXmlPieces = new ArrayDeque<>();
+
         //while (tokenIterator.hasNext()) {
         //    // Create an XML piece out of the current token.
         //    Piece currentPiece = getPiece(tokenIterator, stackOfXmlPieces);
         //}
         // Extract the root XML piece (which should be an Element, of course).
-        Piece rootPiece = extractPiece(tokenIterator, stackOfXmlPieces);
-        if ( ! (rootPiece instanceof Element) ) {
-            throw new RuntimeException(String.format("Expected an Element, but this has come now: %s", rootPiece.toString()));
-        }
-        Element rootElement = (Element) rootPiece;
+        //Piece rootPiece = extractPiece(tokenIterator, stackOfXmlPieces);
+        //Piece rootPiece = loadPiece(tokenIterator, stackOfXmlPieces);
+        //if ( ! (rootPiece instanceof Element) ) {
+        //    throw new RuntimeException(String.format("Expected an Element, but this has come now: %s", rootPiece.toString()));
+        //}
+        Element rootElement = extractElement(tokenIterator, null);
         xmlDocument.setDocumentElement(rootElement);
 
-        // Integrity check.
-        // The XML pieces' stack should be empty.
-        if ( ! (stackOfXmlPieces.isEmpty()) ) {
-            throw new RuntimeException(String.format("There are some unprocessed XML pieces on the stack: %s", stackOfXmlPieces.toString()));
-        }
+        //// Integrity check.
+        //// The XML pieces' stack should be empty.
+        //if ( ! (stackOfXmlPieces.isEmpty()) ) {
+        //    throw new RuntimeException(String.format("There are some unprocessed XML pieces on the stack: %s", stackOfXmlPieces.toString()));
+        //}
 
         // Integrity check.
         // There should be no more tokens to process via the iterator.
         if ( ! ( ! tokenIterator.hasNext() ) ) {
-            throw new RuntimeException(String.format("An XML document is supposed to have exacle ONE DOCUMENT ELEMENT."));
+            throw new RuntimeException(String.format("An XML document is supposed to have exactly ONE DOCUMENT ELEMENT."));
         }
 
         // Done!
@@ -743,161 +745,401 @@ public class Xmler {
 
 
 
+    // //private Piece extractPiece(Iterator<Token> tokenIterator, Deque<Piece> stackOfXmlPieces) {
+    // /**
+    //  * Extracts an XML piece from the list of Token objects.
+    //  * Uses recursion.
+    //  * 
+    //  * @param tokenIterator Iterates through tokens.
+    //  * @param stackOfXmlPieces Stack of XML pieces that have not been fully processed.
+    //  * @return Returns the extracted piece.
+    //  */
+    // private Piece loadPiece(Iterator<Token> tokenIterator, Deque<Piece> stackOfXmlPieces) {
+
+    //     // Prepare a result.
+    //     Piece extractedPiece = null;
+
+    //     // Encapsulate the entire method into an infinite loop.
+    //     for (;;) {
+
+    //         // Integrity check.
+    //         // Here, we expect a piece.
+    //         // Therefore, the list of unprocessed tokens must NOT be empty.
+    //         if ( ! (tokenIterator.hasNext()) ) {
+    //             throw new RuntimeException(String.format("No more tokens left, but an XML piece is expected!"));
+    //         }
+
+    //         // Get the current XML token.
+    //         Token currentToken = tokenIterator.next();
+
+    //         // Depending on the type of the token, do the following:
+    //         if (currentToken instanceof ProcessingToken) {
+
+    //             // Processing instruction.
+
+    //             // Nonsense. This should not happen in the course of syntax analysis.
+    //             throw new RuntimeException(String.format("Processing instructions not expected in this phase: %s", currentToken.toString()));
+
+    //         } else if (currentToken instanceof ElementToken) {
+
+    //             // Element token.
+
+    //             // Access the element token.
+    //             ElementToken elementToken = (ElementToken) currentToken;
+
+    //             // Now, it depends on whether this is an opening tag or a closing tag.
+    //             if (elementToken.isOpeningTag()) {
+
+    //                 // Opening tag.
+
+    //                 // Create an element XML piece and put it on the stack.
+    //                 //Element element = new Element(elementToken.getName());
+    //                 Element element = new Element(elementToken);
+    //                 stackOfXmlPieces.push(element);
+
+    //                 // Start a method to extract subelements of this element.
+    //                 //extractPiece(tokenIterator, stackOfXmlPieces);
+    //                 loadPiece(tokenIterator, stackOfXmlPieces);
+
+    //             } else {
+
+    //                 // Closing tag.
+
+    //                 // Access the top element.
+    //                 Element elementOnTop = getTopElement(stackOfXmlPieces, false);
+
+    //                 // Integrity check.
+    //                 // The element on the stack has the same name as the current closing tag.
+    //                 if ( ! (elementOnTop.getName().equals(elementToken.getName())) ) {
+    //                     throw new RuntimeException(String.format("The current closing tag is: '%s'. However, we've been expecting: %s", elementToken.toString(), elementOnTop.getName()));
+    //                 }
+
+    //                 // OK. We've successfully processed an XML element.
+    //                 // Now, just pop it out of the stack.
+    //                 stackOfXmlPieces.pop();
+
+    //                 // If there are more elements on the stack, add the element we've just closed to that element's parent.
+    //                 Element parentElement = getTopElement(stackOfXmlPieces, true);
+    //                 if (parentElement != null) {
+    //                     parentElement.addElement(elementOnTop);
+    //                 }
+
+    //                 // And return it as a result of this method.
+    //                 //return pieceOnTop;
+    //                 return elementOnTop;
+
+    //             }
+
+    //         } else if (currentToken instanceof TextToken) {
+
+    //             // Text token.
+
+    //             // Add the text contents to the parent Element token.
+    //             TextToken textToken = (TextToken) currentToken;
+
+    //             // Access the top element.
+    //             Element elementOnTop = getTopElement(stackOfXmlPieces, false);
+
+    //             // Add the current text token to the parent element.
+    //             //elementOnTop.addText(textToken);
+    //             Text text = new Text(textToken);
+    //             elementOnTop.addText(text);
+
+    //         } else {
+
+    //             // Uknown token.
+
+    //             // This is an integrity issue (syntax error).
+    //             throw new RuntimeException(String.format("This token is not supported here: '%s'", currentToken.toString()));
+
+    //         } // END OF the token type selection.
+
+    //     } // END OF the main loop.
+
+    //     //// Return the result.
+    //     //return extractedPiece;
+    //     //throw new RuntimeException(String.format("Unexpected situation occurred while analyzing the text of an XML document."));
+
+    // }
+
+
+
+    // /**
+    //  * Gets an Element on the top of the stack of XML pieces.
+    //  * Keeps the element on the stack (using peek() not pop()).
+    //  * 
+    //  * @param stackOfXmlPieces XML pieces' stack.
+    //  * @param ignoreIfMissing True :-: ignore the situation where there are no more elements on the stack (and return null), false :-: if the stack is empty, then throw an exception.
+    //  * @return Returns the top element from the given stack, or null if the stack is empty (see parameters).
+    //  */
+    // private Element getTopElement(Deque<Piece> stackOfXmlPieces, boolean ignoreIfMissing) {
+
+    //     // Integrity check.
+    //     // When the given stack is empty.
+    //     if (stackOfXmlPieces.isEmpty()) {
+    //         if (ignoreIfMissing) {
+    //             // Just return null, do not throw an exception.
+    //             return null;
+    //         } else {
+    //             // We expected a particular element on the stack. Throw an exception.
+    //             throw new RuntimeException(String.format("The stack of XML pieces is empty!"));
+    //         }
+    //     }
+
+    //     // There should be an element on the top of the XML pieces' stack.
+    //     Piece pieceOnTop = stackOfXmlPieces.peek();
+
+    //     // Integrity check.
+    //     // The top piece should be an element.
+    //     if ( ! (pieceOnTop instanceof Element) ) {
+    //         throw new RuntimeException(String.format("This type (%s) of XML piece is not expected here: %s", pieceOnTop.getClass().getName(), pieceOnTop.toString()));
+    //     }
+
+    //     // Access the element.
+    //     Element elementOnTop = (Element) pieceOnTop;
+
+    //     // return the result.
+    //     return elementOnTop;
+
+    // }
+
+
+
+    //private Element extractElement(Iterator<Token> tokenIterator, ElementToken openingTag, Element parentElement) {
+    //* @param parentElement If the element to be extracted shall have a parent, then this is a reference to that parent, otherwise this shall be null.
     /**
-     * Extracts an XML piece from the list of Token objects.
-     * Uses recursion.
+     * Extracts an element from the list of tokens iterated through by a given iterator.
      * 
-     * @param tokenIterator Iterates through tokens.
-     * @param stackOfXmlPieces Stack of XML pieces that have not been fully processed.
-     * @return Returns the extracted piece.
+     * @param tokenIterator Iterator to access items on the list. Forward direction only.
+     * @param openingTag If already loaded, this should be the opening tag of the element to extract. If not loaded yet, this should be null.
+     * @return Returns an element extracted from the token list.
      */
-    private Piece extractPiece(Iterator<Token> tokenIterator, Deque<Piece> stackOfXmlPieces) {
+    private Element extractElement(Iterator<Token> tokenIterator, ElementToken openingTag) {
 
-        // Prepare a result.
-        Piece extractedPiece = null;
+        // Integrity check.
+        // The opening tag token (if provided) should be an OPENING tag indeed.
+        if ( openingTag != null ) {
+            if ( ! (openingTag.isOpeningTag()) ) {
+                throw new RuntimeException(String.format("This token is supposed to be an opening tag: '%s'", openingTag.toString()));
+            }
+        }
 
-        // Encapsulate the entire method into an infinite loop.
+        // Integrity check.
+        // If no opening tag has been passed into the method, it must be loaded using the iterator. That is, there must be unprocessed tokens.
+        if ( openingTag == null ) {
+            if ( ! (tokenIterator.hasNext()) ) {
+                throw new RuntimeException(String.format("An opening version of an element token is expected here. But there are no more tokens left."));
+            }
+        }
+
+        // Access the current token.
+        Token currentToken;
+        if (openingTag != null) {
+            currentToken = openingTag;
+        } else {
+            currentToken = tokenIterator.next();
+        }
+
+        // Integrity check.
+        // Handle the situation where the current token is NOT an OPENING ELEMENT token.
+        if ( ! ((currentToken instanceof ElementToken) && (((ElementToken) currentToken).isOpeningTag())) ) {
+            throw new RuntimeException(String.format("The current token is supposed to be an opening tag: '%s'", currentToken.toString()));
+        }
+
+        // Load the opening tag of the element to extract.
+        ElementToken openingTagLoaded = (ElementToken) currentToken;
+
+        // Create an element out of the opening version of the element token.
+        Element currentElement = new Element(openingTagLoaded);
+
+        // Try to load a closing tag of the element to extract.
+        ElementToken closingTagLoaded = findClosingTagAndAddChildren(currentElement, tokenIterator);
+
+        // Integrity check.
+        // We should really have a closing tag.
+        if ( ! (closingTagLoaded.isClosingTag()) ) {
+            throw new RuntimeException(String.format("This token is supposed to be a closing tag: '%s'", closingTagLoaded.toString()));
+        }
+
+        // Integrity check.
+        // Check the names of the opening tag and the closing tag. They should match.
+        // Just in case, check the name of the extracted element as well.
+        if ( ! (
+            (closingTagLoaded.getName().equals(openingTagLoaded.getName()))
+            &&
+            (currentElement.getName().equals(openingTagLoaded.getName()))
+        ) ) {
+            throw new RuntimeException(String.format("Names in the element, opening tag and closing tag must match. Element name: '%s', Opening tag name: '%s', Closing tag name: '%s'", currentElement.getName(), openingTagLoaded.getName(), closingTagLoaded.getName()));
+        }
+
+        // Return the result.
+        return currentElement;
+
+    }
+
+
+
+    /**
+     * Tries to find a closing tag for a given element, adding child pieces to the element on the fly.
+     * 
+     * @param currentElement Element currently being extracted.
+     * @param tokenIterator Iterator to process tokens.
+     * @return Returns the first closing tag encountered. It is the responsibility of the caller to check the closing tag against the opening one.
+     */
+    private ElementToken findClosingTagAndAddChildren(Element currentElement, Iterator<Token> tokenIterator) {
+
+        // Loop.
         for (;;) {
 
             // Integrity check.
-            // Here, we expect a piece.
-            // Therefore, the list of unprocessed tokens must NOT be empty.
+            // A token is expected.
             if ( ! (tokenIterator.hasNext()) ) {
-                throw new RuntimeException(String.format("No more tokens left, but an XML piece is expected!"));
+                throw new RuntimeException(String.format("No more tokens available to parse the XML document. The syntax analysis forced to stop."));
             }
 
-            // Get the current XML token.
+            // Load a token.
             Token currentToken = tokenIterator.next();
 
-            // Depending on the type of the token, do the following:
-            if (currentToken instanceof ProcessingToken) {
-
-                // Processing instruction.
-
-                // Nonsense. This should not happen in the course of syntax analysis.
-                throw new RuntimeException(String.format("Processing instructions not expected in this phase: %s", currentToken.toString()));
-
-            } else if (currentToken instanceof ElementToken) {
-
-                // Element token.
-
-                // Access the element token.
-                ElementToken elementToken = (ElementToken) currentToken;
-
-                // Now, it depends on whether this is an opening tag or a closing tag.
-                if (elementToken.isOpeningTag()) {
-
-                    // Opening tag.
-
-                    // Create an element XML piece and put it on the stack.
-                    //Element element = new Element(elementToken.getName());
-                    Element element = new Element(elementToken);
-                    stackOfXmlPieces.push(element);
-
-                    // Start a method to extract subelements of this element.
-                    extractPiece(tokenIterator, stackOfXmlPieces);
-
-                } else {
-
-                    // Closing tag.
-
-                    // Access the top element.
-                    Element elementOnTop = getTopElement(stackOfXmlPieces, false);
-
-                    // Integrity check.
-                    // The element on the stack has the same name as the current closing tag.
-                    if ( ! (elementOnTop.getName().equals(elementToken.getName())) ) {
-                        throw new RuntimeException(String.format("The current closing tag is: '%s'. However, we've been expecting: %s", elementToken.toString(), elementOnTop.getName()));
-                    }
-
-                    // OK. We've successfully processed an XML element.
-                    // Now, just pop it out of the stack.
-                    stackOfXmlPieces.pop();
-
-                    // If there are more elements on the stack, add the element we've just closed to that element's parent.
-                    Element parentElement = getTopElement(stackOfXmlPieces, true);
-                    if (parentElement != null) {
-                        parentElement.addElement(elementOnTop);
-                    }
-
-                    // And return it as a result of this method.
-                    //return pieceOnTop;
-                    return elementOnTop;
-
-                }
-
-            } else if (currentToken instanceof TextToken) {
-
-                // Text token.
-
-                // Add the text contents to the parent Element token.
-                TextToken textToken = (TextToken) currentToken;
-
-                // Access the top element.
-                Element elementOnTop = getTopElement(stackOfXmlPieces, false);
-
-                // Add the current text token to the parent element.
-                //elementOnTop.addText(textToken);
-                Text text = new Text(textToken);
-                elementOnTop.addText(text);
-
-            } else {
-
-                // Uknown token.
-
-                // This is an integrity issue (syntax error).
-                throw new RuntimeException(String.format("This token is not supported here: '%s'", currentToken.toString()));
-
-            } // END OF the token type selection.
-
-        } // END OF the main loop.
-
-        //// Return the result.
-        //return extractedPiece;
-        //throw new RuntimeException(String.format("Unexpected situation occurred while analyzing the text of an XML document."));
-
-    }
-
-
-
-    /**
-     * Gets an Element on the top of the stack of XML pieces.
-     * Keeps the element on the stack (using peek() not pop()).
-     * 
-     * @param stackOfXmlPieces XML pieces' stack.
-     * @param ignoreIfMissing True :-: ignore the situation where there are no more elements on the stack (and return null), false :-: if the stack is empty, then throw an exception.
-     * @return Returns the top element from the given stack, or null if the stack is empty (see parameters).
-     */
-    private Element getTopElement(Deque<Piece> stackOfXmlPieces, boolean ignoreIfMissing) {
-
-        // Integrity check.
-        // When the given stack is empty.
-        if (stackOfXmlPieces.isEmpty()) {
-            if (ignoreIfMissing) {
-                // Just return null, do not throw an exception.
-                return null;
-            } else {
-                // We expected a particular element on the stack. Throw an exception.
-                throw new RuntimeException(String.format("The stack of XML pieces is empty!"));
+            // If the token is a CLOSING TAG version of an ELEMENT TOKEN, then just return the token back to the caller.
+            // Do not check whether the closing tag matches the current element (its opening tag). This is to be done by the caller.
+            if (
+                (currentToken instanceof ElementToken)
+                &&
+                (((ElementToken) currentToken).isClosingTag())
+            ) {
+                ElementToken closingTag = (ElementToken) currentToken;
+                return closingTag;
             }
+
+            // If the token is a TEXT TOKEN, then just add the corresponding text as a child to the given element.
+            if (currentToken instanceof TextToken) {
+                TextToken textToken = (TextToken) currentToken;
+                currentElement.addTextFromTextToken(textToken);
+                // Iterate.
+                continue;
+            }
+
+            // If the token is an OPENING TAG version of an ELEMENT TOKEN, then try to extract the element using the extractElement() method.
+            // Add the extracted element as a child to the given element.
+            if (
+                (currentToken instanceof ElementToken)
+                &&
+                (((ElementToken) currentToken).isOpeningTag())
+            ) {
+                ElementToken openingTag = (ElementToken) currentToken;
+                //Element childElement = extractElement(tokenIterator, openingTag, currentElement);
+                Element childElement = extractElement(tokenIterator, openingTag);
+                currentElement.addElement(childElement);
+                // Iterate.
+                continue;
+            }
+
+            // Integrity check.
+            // Other cases mean an error!
+            throw new RuntimeException(String.format("This token is not expected here: '%s'", currentToken.toString()));
+
         }
-
-        // There should be an element on the top of the XML pieces' stack.
-        Piece pieceOnTop = stackOfXmlPieces.peek();
-
-        // Integrity check.
-        // The top piece should be an element.
-        if ( ! (pieceOnTop instanceof Element) ) {
-            throw new RuntimeException(String.format("This type (%s) of XML piece is not expected here: %s", pieceOnTop.getClass().getName(), pieceOnTop.toString()));
-        }
-
-        // Access the element.
-        Element elementOnTop = (Element) pieceOnTop;
-
-        // return the result.
-        return elementOnTop;
 
     }
+
+
+
+    // /**
+    //  * Extracts an element from the list of tokens iterated through by a given iterator.
+    //  * 
+    //  * @param tokenIterator Iterator to access items on the list. Forward direction only.
+    //  * @param parentElement If the element to be extracted shall have a parent, then this is a reference to that parent, otherwise this shall be null.
+    //  * @return Returns an element extracted from the token list.
+    //  */
+    // private Element extractElement(Iterator<Token> tokenIterator, ElementToken openingTag, Element parentElement) {
+
+    //     // TODOM: Integrity check.
+    //     // The opening tag token should be an OPENING tag indeed.
+
+    //     // Access the current token.
+    //     Token currentToken;
+    //     if (openingTag != null) {
+    //         currentToken = openingTag;
+    //     } else {
+    //         currentToken = tokenIterator.next();
+    //     }
+
+    //     // TODOM: Handle the situation where the current token is NOT an OPENING ELEMENT token.
+
+    //     // TODOM: Handle the situation where there are no more tokens accessible through the iterator.
+    //     // Here we have two legal situtaions (any other situation means an ERROR):
+    //     // (i) Either there is no opening tag and no parent element passed into the method and there IS a token available through the iterator.
+    //     // (ii) Or there IS an opening tag and there IS a parent element.
+    //     //      In that case we do not need a token from the iterator as an opening tag of the element to extract,
+    //     //      but we'll need another token soon, though, of course, to CLOSE the element.
+
+    //     // Load the opening tag of the element to extract.
+    //     ElementToken openingTagLoaded = (ElementToken) currentToken;
+
+    //     // Try to find the closing tag of the element. Use a loop.
+    //     for (;;) {
+
+    //         // TODOM: Handle the situation where there are no more tokens accessible through the iterator.
+
+    //         // Load the next token.
+    //         currentToken = tokenIterator.next();
+
+    //         // If the token is a CLOSING ELEMENT token of the ELEMENT being EXTRACTED, then this is the desirable case.
+    //         // Add the complete element to the parent if any.
+    //         // We're done.
+    //         // Return the result.
+    //         if (
+    //             (currentToken instanceof ElementToken)
+    //             &&
+    //             (((ElementToken) currentToken).isClosingTag())
+    //             &&
+    //             (((ElementToken) currentToken).getName().equals(openingTagLoaded.getName()))
+    //         ) {
+    //             ElementToken closingTagLoaded = (ElementToken) currentToken;
+    //             Element extractedElement = new Element(openingTagLoaded);
+    //             if (parentElement != null) {
+    //                 parentElement.addElement(extractedElement);
+    //             }
+    //             return extractedElement;
+    //         }
+
+    //         // If the token is a CLOSING ELEMENT token of ANOTHER ELEMENT, then this is an error!
+    //         // TODOM: Report the error.
+
+    //         // If the token is an OPENING ELEMENT token, then it must be a subelement of the element being extracted.
+    //         // Use recursion. It is necessary to pass the token just read into the recursive call,
+    //         // otherwise the processing at the lower level would not have the opening token available.
+    //         if (
+    //             (currentToken instanceof ElementToken)
+    //             &&
+    //             (((ElementToken) currentToken).isOpeningTag())
+    //         ) {
+    //             ElementToken openingTagForSubelementLoaded = (ElementToken) currentToken;
+    //             return extractedElement;
+    //         }
+
+    //         // If the token is a TEXT token and there is NO PARENT element, then this is an error!
+    //         // TODOM: Report the error.
+
+    //         // If the token is a TEXT token and there IS a parent element, then add this text to the parent.
+    //         // Then iterate.
+    //         // (Continue looking for a closing tag of the element currently being extracted.)
+    //         if (currentToken instanceof TextToken) {
+    //             TextToken textTokenLoaded = (TextToken) currentToken;
+    //             parentElement.addTextFromTextToken(textTokenLoaded);
+    //         }
+
+    //         // If the token is a PROCESSING instruction token, then this is an error!
+    //         // TODOM: Report the error.
+
+    //         // TODOM: The processing is SUPPOSED to NOT reach up here.
+
+    //     }
+
+    //     // TODOM: Get rid of this "fake" return once implementation of this method is finished.
+    //     return null;
+
+    // }
 
 
 

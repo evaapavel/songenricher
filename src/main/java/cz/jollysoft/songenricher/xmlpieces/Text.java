@@ -24,13 +24,17 @@ public class Text extends Piece {
     /** Text contents of this Text XML piece. */
     private String plaintext;
 
+    /** The parent element of this text XML piece. */
+    private Element parentElement;
+
 
 
     /**
      * Constructor.
      */
     public Text() {
-        plaintext = EMPTY;
+        //plaintext = EMPTY;
+        this(EMPTY);
     }
 
 
@@ -41,7 +45,21 @@ public class Text extends Piece {
      * @param plaintext Text contents of this Text XML piece.
      */
     public Text(String plaintext) {
+        //this.plaintext = plaintext;
+        this(plaintext, null);
+    }
+
+
+
+    /**
+     * Constructor.
+     * 
+     * @param plaintext Text contents of this Text XML piece.
+     * @param parentElement Parent element of this text piece.
+     */
+    public Text(String plaintext, Element parentElement) {
         this.plaintext = plaintext;
+        this.parentElement = parentElement;
     }
 
 
@@ -52,7 +70,23 @@ public class Text extends Piece {
      * @param textToken Text token to construct this text piece out of.
      */
     public Text(TextToken textToken) {
-        this.plaintext = textToken.getValue();
+        //this.plaintext = textToken.getValue();
+        //this(textToken.getValue());
+        this(textToken, null);
+    }
+
+
+
+    /**
+     * Constructor.
+     * 
+     * @param textToken Text token to construct this text piece out of.
+     * @param parentElement Parent element of this text piece.
+     */
+    public Text(TextToken textToken, Element parentElement) {
+        //this.plaintext = textToken.getValue();
+        //this.parentElement = parentElement;
+        this(textToken.getValue(), parentElement);
     }
 
 
@@ -63,6 +97,14 @@ public class Text extends Piece {
 
     public void setPlaintext(String plaintext) {
         this.plaintext = plaintext;
+    }
+
+    public Element getParentElement() {
+        return parentElement;
+    }
+
+    public void setParentElement(Element parentElement) {
+        this.parentElement = parentElement;
     }
 
 
