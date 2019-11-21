@@ -32,6 +32,9 @@ public class Xmler {
     //private static final String XML_IDENTIFIER_REGEX = "[a-zA-Z\\_\\-][a-zA-Z\\_\\-0-9]*";
     private static final String XML_IDENTIFIER_REGEX = "[a-zA-Z\\_][a-zA-Z\\_\\-0-9]*";
 
+    /** Platform dependent newline character(s). CRLF for Windows, LF for Linux, CR for Mac. */
+    private static final String NEW_LINE_SEQUENCE = ( ((System.getProperty("line.separator") != null) && (System.getProperty("line.separator").length() > 0)) ? (System.getProperty("line.separator")) : ("\n") );
+
 
 
     /** Lines of the text to transform into an XML document. */
@@ -95,9 +98,16 @@ public class Xmler {
      * Convert text lines into a single string.
      */
     private void flatten() {
+        //String newlineSequence = String.format("%n");
         String flatText = lines.stream()
-            .reduce("", (acc, s) -> acc.concat(" ").concat(s))
             //.reduce("", String::concat)
+            //.reduce("", (acc, s) -> acc.concat(" ").concat(s))
+            // Try to keep newline characters between the lines.
+            //.reduce("", (acc, s) -> acc.concat("\n").concat(s))
+            //.reduce((acc, s) -> acc.concat("\n").concat(s))
+            .reduce((acc, s) -> acc.concat(NEW_LINE_SEQUENCE).concat(s))
+            // Here we've got an Optional<String>.
+            .orElse("")
         ;
         entireText = flatText;
     }

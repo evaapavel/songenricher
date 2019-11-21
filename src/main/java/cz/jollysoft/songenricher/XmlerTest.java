@@ -35,7 +35,9 @@ public class XmlerTest {
     public static void main(String[] args) {
 
         // Give debug info.
+        System.out.println();
         System.out.println("Starting...");
+        System.out.println();
 
         // Prepare a path to the file.
         //String pathToFile = "src/main/resources/test.txt";
@@ -50,6 +52,9 @@ public class XmlerTest {
         Ensemble ensemble = ensembleLoader.apply(path);
 
         // Display the file contents.
+        System.out.println();
+        System.out.println("The contents of the file:");
+        System.out.println();
         for (String line : ensemble.getLines()) {
             System.out.println(line);
         }
@@ -60,17 +65,25 @@ public class XmlerTest {
         xmler.parse();
 
         // Display tokens produced out of the file.
+        System.out.println();
+        System.out.println("Tokens found:");
+        System.out.println();
         for (Token token : xmler.getXmlTokens()) {
             System.out.println(token);
         }
 
         // Print out the XML object structure hierarchically.
+        System.out.println();
+        System.out.println("XML structure:");
+        System.out.println();
         Element rootElement = xmler.getXmlDocument().getDocumentElement();
         //printXmlPiece(rootElement, 0, false);
         printXmlPiece(rootElement);
 
         // Give debug info.
+        System.out.println();
         System.out.println("Done!");
+        System.out.println();
 
     }
 
