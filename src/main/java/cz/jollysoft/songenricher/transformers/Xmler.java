@@ -354,7 +354,12 @@ public class Xmler {
 
             // OK. Here we're sure we can dispose of the beginning and ending sequence and there'll be something left.
             // Example: <?xml version="1.0" encoding="UTF-8"?>
-            String tokenTextWithoutBeginAndEnd = tokenText.substring(2, tokenText.length() - 4);
+            //String tokenTextWithoutBeginAndEnd = tokenText.substring(2, tokenText.length() - 4);
+            // The String.substring method signature is as follows:
+            // String substring(int beginIndex, int endIndex)
+            // The second parameter means an INDEX (exclusive, i.e. the index of the first character to not include in the result),
+            // not a number of characters!!!
+            String tokenTextWithoutBeginAndEnd = tokenText.substring(2, tokenText.length() - 2);
             //String[] parts = tokenTextWithoutBeginAndEnd.split("[ \t]+");
             String[] parts = splitTokenText(tokenTextWithoutBeginAndEnd);
             if ( ! (parts.length >= 1) ) {
@@ -408,12 +413,14 @@ public class Xmler {
                 // A closing tag.
                 // Caution: Closing tags are supposed to NOT have attributes.
                 // Example: </capo>
-                tokenTextWithoutBeginAndEnd = tokenText.substring(2, tokenText.length() - 3);
+                //tokenTextWithoutBeginAndEnd = tokenText.substring(2, tokenText.length() - 3);
+                tokenTextWithoutBeginAndEnd = tokenText.substring(2, tokenText.length() - 1);
                 elementToken.setClosingTag(true);
             } else {
                 // An opening tag.
                 // Example: <capo print="false">
-                tokenTextWithoutBeginAndEnd = tokenText.substring(1, tokenText.length() - 2);
+                //tokenTextWithoutBeginAndEnd = tokenText.substring(1, tokenText.length() - 2);
+                tokenTextWithoutBeginAndEnd = tokenText.substring(1, tokenText.length() - 1);
                 elementToken.setOpeningTag(true);
             }
             //String[] parts = tokenTextWithoutBeginAndEnd.split("[ \t]+");
@@ -500,7 +507,8 @@ public class Xmler {
         // For the name, take the whole string.
         attributeAndValue[0] = attributeParts[0];
         // For the value, strip the leading and trailing quotes.
-        attributeAndValue[1] = attributeParts[1].substring(1, attributeParts[1].length() - 2);
+        //attributeAndValue[1] = attributeParts[1].substring(1, attributeParts[1].length() - 2);
+        attributeAndValue[1] = attributeParts[1].substring(1, attributeParts[1].length() - 1);
         return attributeAndValue;
     }
 
