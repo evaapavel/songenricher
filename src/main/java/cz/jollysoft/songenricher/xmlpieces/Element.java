@@ -4,6 +4,9 @@ package cz.jollysoft.songenricher.xmlpieces;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+
+import cz.jollysoft.songenricher.transformers.xml.ElementToken;
 
 
 
@@ -48,6 +51,25 @@ public class Element extends Piece {
 
 
 
+    /**
+     * Constructor.
+     * Constructs an XML element from an OPENING version of an element token.
+     * 
+     * @param elementToken Element token to construct this element out of.
+     */
+    public Element(ElementToken elementToken) {
+        this.name = elementToken.getName();
+        subelements = new ArrayList<>();
+        subpieces = new ArrayList<>();
+        attributes = new ArrayList<>();
+        for (Map.Entry<String, String> entry : elementToken.getAttributesAndValues().entrySet()) {
+            Attribute attribute = new Attribute(entry.getKey(), entry.getValue());
+            this.attributes.add(attribute);
+        }
+    }
+
+
+
     public String getName() {
         return name;
     }
@@ -62,6 +84,36 @@ public class Element extends Piece {
 
     public List<Attribute> getAttributes() {
         return attributes;
+    }
+
+
+
+    /**
+     * Adds a given text piece to this XML element as its child.
+     * 
+     * @param childText Text piece to add to this.
+     */
+    public void addText(Text childText) {
+        this.subpieces.add(childText);
+    }
+
+
+
+    /**
+     * Adds a given element piece to this XML element as its child.
+     * 
+     * @param childElement Element piece to add to this.
+     */
+    public void addElement(Element childElement) {
+        this.subelements.add(childElement);
+        this.subpieces.add(childElement);
+    }
+
+
+
+    @Override
+    public String toString() {
+        return "Element: " + name + attributes + "(" + subpieces.size() + " subpieces)";
     }
 
 

@@ -1,12 +1,21 @@
 package cz.jollysoft.songenricher.transformers;
 
-
-
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Iterator;
+//import java.util.Map;
+import java.util.Deque;
 
+import cz.jollysoft.songenricher.transformers.xml.ElementToken;
+import cz.jollysoft.songenricher.transformers.xml.ProcessingToken;
+import cz.jollysoft.songenricher.transformers.xml.TextToken;
 import cz.jollysoft.songenricher.transformers.xml.Token;
 import cz.jollysoft.songenricher.xmlpieces.Document;
+import cz.jollysoft.songenricher.xmlpieces.Element;
+import cz.jollysoft.songenricher.xmlpieces.Piece;
+import cz.jollysoft.songenricher.xmlpieces.Text;
 
 
 
@@ -16,6 +25,12 @@ import cz.jollysoft.songenricher.xmlpieces.Document;
  * @author Pavel Foltyn
  */
 public class Xmler {
+
+
+
+    /** Defines a regular expression that is to be used when checking for XML identifiers. */
+    //private static final String XML_IDENTIFIER_REGEX = "[a-zA-Z\\_\\-][a-zA-Z\\_\\-0-9]*";
+    private static final String XML_IDENTIFIER_REGEX = "[a-zA-Z\\_][a-zA-Z\\_\\-0-9]*";
 
 
 
@@ -93,8 +108,18 @@ public class Xmler {
      * Convert a single string into an XML document.
      */
     private void produce() {
+
+        // Tokenize.
         List<Token> tokens = tokenize(entireText);
         xmlTokens = tokens;
+
+        // Parse the tokens.
+        List<Token> parsedTokens = parseTokens(xmlTokens);
+        xmlTokens = parsedTokens;
+
+        // Analyze the list of tokens and build the structure of the resulting XML document.
+        analyzeAndBuild();
+
     }
 
 
@@ -246,6 +271,631 @@ public class Xmler {
             Token token = new Token(tokenAsStringTrimmed);
             tokens.add(token);
         }
+
+    }
+
+
+
+    /**
+     * Parses each token from a given list and returns a list of the same tokens parsed.
+     * 
+     * @param tokens Tokens to parse.
+     * @return Returns a list of the same tokens that are parsed.
+     */
+    private List<Token> parseTokens(List<Token> tokens) {
+
+        // Prepare a resulting list.
+        //List<Token> parsedTokens = new ArrayList<>();
+        List<Token> parsedTokens = null;
+
+        // Parse each token.
+        parsedTokens = tokens.stream()
+            .map(this::parseToken)
+            .collect(Collectors.toList())
+        ;
+
+        // Return the result.
+        return parsedTokens;
+
+    }
+
+
+
+    /**
+     * Parses a given token.
+     * 
+     * @param token Token to parse.
+     * @return Returns a parsed token.
+     */
+    private Token parseToken(Token token) {
+
+        // Determine the type of the token.
+        Token parsedToken;
+        if (token.getValue().startsWith("<?")) {
+            // This should be a processing instruction token.
+            parsedToken = new ProcessingToken(token.getValue());
+        } else if (token.getValue().startsWith("<")) {
+            // This should be an element token.
+            parsedToken = new ElementToken(token.getValue());
+        //} else if () {
+        //} else {
+        //    throw new RuntimeException(String.format("Cannot determine the type of the given token: %s", token.toString()));
+        //}
+        } else {
+            // For all other cases, this should be a text token.
+            parsedToken = new TextToken(token.getValue());
+        }
+
+        // For each type:
+        // Perform an integrity check.
+        // Create an appropriate specialized token.
+        // Set up the new token's properties.
+        if (parsedToken instanceof ProcessingToken) {
+
+            // Processing instruction token.
+
+            // Access the token.
+            ProcessingToken processingToken = (ProcessingToken) parsedToken;
+
+            // Mandatory parts of a processing instruction token:
+            // Opening and closing sequence.
+            // Processing instruction name.
+            // This means: A processing instruction token must be at least 5 characters long (<?a?>)
+            String tokenText = processingToken.getValue();
+            if ( ! (tokenText.length() >= 5) ) {
+                throw new RuntimeException(String.format("The processing instruction token is too short: '%s'", tokenText));
+            }
+            if ( ! (tokenText.startsWith("<?")) ) {
+                throw new RuntimeException(String.format("A processing instruction token must begin with '<?'. But this one is: '%s'", tokenText));
+            }
+            if ( ! (tokenText.endsWith("?>")) ) {
+                throw new RuntimeException(String.format("A processing instruction token must end with '?>'. But this one is: '%s'", tokenText));
+            }
+
+            // OK. Here we're sure we can dispose of the beginning and ending sequence and there'll be something left.
+            // Example: <?xml version="1.0" encoding="UTF-8"?>
+            String tokenTextWithoutBeginAndEnd = tokenText.substring(2, tokenText.length() - 4);
+            //String[] parts = tokenTextWithoutBeginAndEnd.split("[ \t]+");
+            String[] parts = splitTokenText(tokenTextWithoutBeginAndEnd);
+            if ( ! (parts.length >= 1) ) {
+                throw new RuntimeException(String.format("A processing instruction token must have a name. But this one is: '%s'", tokenText));
+            }
+
+            // The first part is expected to be the name of the processing instruction token.
+            //if ( ! (matchesPattern(parts[0], "[a-zA-Z\\_\\-][a-zA-Z\\_\\-0-9]*")) ) {
+            if ( ! (matchesPattern(parts[0], XML_IDENTIFIER_REGEX)) ) {
+                throw new RuntimeException(String.format("A processing instruction token must have a name (which is more or less an identifier). But this one is: '%s'", tokenText));
+            }
+            processingToken.setName(parts[0]);
+
+            // The rest must be attributes (name/value pairs).
+            for (int i = 1; i < parts.length; i++) {
+                String part = parts[i];
+                //Map.Entry<String, String> attributeAndValue = parseAttribute(part);
+                //processingToken.getAttributesAndValues().put(attributeAndValue.getKey(), attributeAndValue.getValue());
+                String[] attributeAndValue = parseAttribute(part);
+                processingToken.getAttributesAndValues().put(attributeAndValue[0], attributeAndValue[1]);
+            }
+
+        } else if (parsedToken instanceof ElementToken) {
+
+            // Element token.
+
+            // Access the token.
+            ElementToken elementToken = (ElementToken) parsedToken;
+
+            // Mandatory parts of an element token:
+            // Opening and closing character (or sequence, i.e. an opening sequence in the closing version of an element token a.k.a. "closing tag").
+            // Element name.
+            // This means:
+            // An element token must be at least 3 characters long (for opening tags such as <a>)
+            // or at least 4 characters long (for closing tags such as </a>)
+            String tokenText = elementToken.getValue();
+            if ( ! ( ((tokenText.startsWith("</")) && (tokenText.length() >= 4)) || (tokenText.length() >= 3) ) ) {
+                throw new RuntimeException(String.format("The element token is too short: '%s'", tokenText));
+            }
+            if ( ! (tokenText.startsWith("<")) ) {
+                throw new RuntimeException(String.format("An element token must begin with '<' or '</'. But this one is: '%s'", tokenText));
+            }
+            if ( ! (tokenText.endsWith(">")) ) {
+                throw new RuntimeException(String.format("An element token must end with '>'. But this one is: '%s'", tokenText));
+            }
+
+            // OK. Here we're sure we can dispose of the beginning and ending sequence and there'll be something left.
+            // We have to distinguish between an opening tag and a closing tag.
+            String tokenTextWithoutBeginAndEnd;
+            if (tokenText.startsWith("</")) {
+                // A closing tag.
+                // Caution: Closing tags are supposed to NOT have attributes.
+                // Example: </capo>
+                tokenTextWithoutBeginAndEnd = tokenText.substring(2, tokenText.length() - 3);
+                elementToken.setClosingTag(true);
+            } else {
+                // An opening tag.
+                // Example: <capo print="false">
+                tokenTextWithoutBeginAndEnd = tokenText.substring(1, tokenText.length() - 2);
+                elementToken.setOpeningTag(true);
+            }
+            //String[] parts = tokenTextWithoutBeginAndEnd.split("[ \t]+");
+            String[] parts = splitTokenText(tokenTextWithoutBeginAndEnd);
+            if ( ! (parts.length >= 1) ) {
+                throw new RuntimeException(String.format("An element token must have a name. But this one is: '%s'", tokenText));
+            }
+
+            // The first part is expected to be the name of the processing instruction token.
+            //if ( ! (matchesPattern(parts[0], "[a-zA-Z\\_\\-][a-zA-Z\\_\\-0-9]*")) ) {
+            if ( ! (matchesPattern(parts[0], XML_IDENTIFIER_REGEX)) ) {
+                throw new RuntimeException(String.format("An element token must have a name (which is more or less an identifier). But this one is: '%s'", tokenText));
+            }
+            elementToken.setName(parts[0]);
+
+            // Closing tags are NOT supposed to have attributes.
+            if ( (elementToken.isClosingTag()) && (parts.length > 1) ) {
+                throw new RuntimeException(String.format("The closing version of an element token must NOT have any attributes: '%s'", tokenText));
+            }
+
+            // The rest must be attributes (name/value pairs).
+            for (int i = 1; i < parts.length; i++) {
+                String part = parts[i];
+                //Map.Entry<String, String> attributeAndValue = parseAttribute(part);
+                //processingToken.getAttributesAndValues().put(attributeAndValue.getKey(), attributeAndValue.getValue());
+                String[] attributeAndValue = parseAttribute(part);
+                elementToken.getAttributesAndValues().put(attributeAndValue[0], attributeAndValue[1]);
+            }
+
+        } else if (parsedToken instanceof TextToken) {
+
+            // There's nothing to do with text tokens.
+            // Done!
+
+        } else {
+
+            // Unknown.
+            throw new RuntimeException(String.format("This type of token is not supported here: '%s'", parsedToken.getClass().getName()));
+
+        }
+
+        // For the time being:
+        return parsedToken;
+
+    }
+
+
+
+    /**
+     * Checks whether a given text part matches a given pattern.
+     * 
+     * @param textPart Text part to check.
+     * @param regexPattern Pattern to check the given text part against.
+     * @return Returns true :-: the given text part matches the given pattern, false :-: the given text part does NOT match the given pattern.
+     */
+    private boolean matchesPattern(String textPart, String regexPattern) {
+        return textPart.matches(regexPattern);
+    }
+
+
+
+    //private Map.Entry<String, String> parseAttribute(String textPart) {
+    //* @return Returns a map entry with the parsed name and value.
+    /**
+     * Parses a given text part as if it be a name/value pair (e.g. print="false").
+     * 
+     * @param textPart
+     * @return Returns a two items' array with the parsed name and value.
+     */
+    private String[] parseAttribute(String textPart) {
+        String[] attributeParts = textPart.split("=");
+        if ( ! (attributeParts.length == 2) ) {
+            throw new RuntimeException(String.format("Not a valid attribute (name/value pair): %s", textPart));
+        }
+        //if ( ! (matchesPattern(attributeParts[0], "[a-zA-Z\\_\\-][a-zA-Z\\_\\-0-9]*")) ) {
+        if ( ! (matchesPattern(attributeParts[0], XML_IDENTIFIER_REGEX)) ) {
+            throw new RuntimeException(String.format("The name of an attribute is supposed to be a sort of an identifier (allowing dashes). But this one: %s", textPart));
+        }
+        if ( ! ((matchesPattern(attributeParts[1], "'.*'")) || (matchesPattern(attributeParts[1], "\".*\""))) ) {
+            throw new RuntimeException(String.format("The value of an attribute is supposed to be enclosed in quotes (single or double). But this one: %s", textPart));
+        }
+        //Map.Entry<String, String> attributeAndValue = new Map.Entry<>("", "");
+        String[] attributeAndValue = new String[2];
+        // For the name, take the whole string.
+        attributeAndValue[0] = attributeParts[0];
+        // For the value, strip the leading and trailing quotes.
+        attributeAndValue[1] = attributeParts[1].substring(1, attributeParts[1].length() - 2);
+        return attributeAndValue;
+    }
+
+
+
+    //private List<String> splitTokenText(String tokenTextWithoutBeginAndEnd) {
+    //* @return Returns a list of parts of the given token text.
+    /**
+     * Splits a text from a token (the opening and closing sequences must be stripped out already).
+     * 
+     * @param tokenTextWithoutBeginAndEnd Token text without the opening and trailing sequences.
+     * @return Returns an array of parts of the given token text.
+     */
+    private String[] splitTokenText(String tokenTextWithoutBeginAndEnd) {
+
+        // *******************************************************
+        // A few examples how this works:
+        // *******************************************************
+        // (1)
+        // ORIGINAL TOKEN: <?xml version="1.0" encoding="UTF-8"?>
+        // INPUT: xml version="1.0" encoding="UTF-8"
+        // OUTPUT: xml | version="1.0" | encoding="UTF-8"
+        // *******************************************************
+        // (2)
+        // ORIGINAL TOKEN: </song>
+        // INPUT: song
+        // OUTPUT: song
+        // *******************************************************
+        // (3)
+        // ORIGINAL TOKEN: <capo print="false">
+        // INPUT: capo print="false"
+        // OUTPUT: capo | print="false"
+        // *******************************************************
+        // (4)
+        // ORIGINAL TOKEN: <person name="Elvis Presley" yearOfBirth="1935">
+        // INPUT: person name="Elvis Presley" yearOfBirth="1935"
+        // OUTPUT: person | name="Elvis Presley" | yearOfBirth="1935"
+        // *******************************************************
+
+        // Prepare a resulting list.
+        List<String> tokenParts = new ArrayList<>();
+
+        // Process the given token text.
+        // If there's a quoted sequence, consider the inner text of the sequence to belong to the same token part even if there be whitespace (e.g. spaces).
+        int currentPos = 0;
+        int endPos = tokenTextWithoutBeginAndEnd.length();
+        //boolean insideTokenPart = false;
+        while (currentPos < endPos) {
+
+            // Access the current character.
+            char c = tokenTextWithoutBeginAndEnd.charAt(currentPos);
+
+            // Try to find the beginning of a token part.
+            if ( ! ((c == ' ') || (c == '\t') || (c == '\r') || (c == '\n')) ) {
+
+                // The current character is not whitespace.
+                // Therefore, this is the beginning of a token part.
+
+                // Process further the given token text trying to find the end of the token part.
+                int pos = currentPos + 1;
+                boolean insideQuotedSequence = false;
+                char quotingMark = '"';
+                while (pos < endPos) {
+
+                    // Access the current character.
+                    char cc = tokenTextWithoutBeginAndEnd.charAt(pos);
+
+                    // Try to find the end of the current token part.
+                    if ( ((cc == ' ') || (cc == '\t') || (cc == '\r') || (cc == '\n')) && ( ! insideQuotedSequence ) ) {
+                        // We're not inside a quoted sequence and a whitespace character has been encountered.
+                        // This means we have just proceeded past the last character of the current token part.
+                        break;
+                    } else if ( ((cc == '"') || (cc == '\'')) && ( ! insideQuotedSequence ) ) {
+                        // A beginning of a quoted sequence (single- or double-quoted) is here.
+                        insideQuotedSequence = true;
+                        quotingMark = cc;
+                    } else if ( (cc == '"') && (insideQuotedSequence) && (quotingMark == '"') ) {
+                        // An end of a double-quoted sequence is here.
+                        insideQuotedSequence = false;
+                    } else if ( (cc == '\'') && (insideQuotedSequence) && (quotingMark == '\'') ) {
+                        // An end of a single-quoted sequence is here.
+                        insideQuotedSequence = false;
+                    } else {
+                        // All other characters are OK.
+                        // Just go forth.
+                    }
+
+                    // Iterate.
+                    pos++;
+
+                }
+
+                // Integrity check.
+                // Avoid unterminated quoted sequences.
+                if (insideQuotedSequence) {
+                    throw new RuntimeException(String.format("This token contains an unterminated quoted sequence: '%s'", tokenTextWithoutBeginAndEnd));
+                }
+
+                // Add the current token part to the resulting list.
+                String tokenPart = tokenTextWithoutBeginAndEnd.substring(currentPos, pos);
+                tokenParts.add(tokenPart);
+
+                // Iterate the outer loop.
+                currentPos = pos;
+                
+            } else {
+
+                // The current character IS whitespace.
+
+                // Proceed to the next character.
+                currentPos++;
+
+            }
+
+        }
+
+        // Return the result.
+        String[] tokenPartsAsArray = new String[tokenParts.size()];
+        tokenParts.toArray(tokenPartsAsArray);
+        return tokenPartsAsArray;
+        // Or you can transform the above lines into a single one:
+        //return tokenParts.toArray(new String[0]);
+
+    }
+
+
+
+    /**
+     * Analyzes the list of tokens and builds up an XML document.
+     */
+    private void analyzeAndBuild() {
+
+        // Declare local variables.
+        //Token currentToken;
+        //ProcessingToken processingToken;
+        //ElementToken elementToken;
+        //TextToken textToken;
+
+        // Integrity check.
+        // For a valid XML document, we expect 3 tokens at least.
+        // Example:
+        // <?xml version="1.0" encoding="UTF-8"?>
+        // <song>
+        // </song>
+        if ( ! (xmlTokens.size() >= 3) ) {
+            throw new RuntimeException(String.format("To build an XML document, there should be at least 3 tokens. But only %d tokens have been found.", xmlTokens.size()));
+        }
+
+        // Iterate through all the XML tokens you've just parsed.
+        Iterator<Token> tokenIterator = xmlTokens.iterator();
+
+        // Create a document element and set up its main attributes.
+        //xmlDocument = getDocument(tokenIterator);
+        xmlDocument = extractDocument(tokenIterator);
+
+        // Build the XML document.
+        // Process the remaining tokens.
+        Deque<Piece> stackOfXmlPieces = new ArrayDeque<>();
+        //while (tokenIterator.hasNext()) {
+        //    // Create an XML piece out of the current token.
+        //    Piece currentPiece = getPiece(tokenIterator, stackOfXmlPieces);
+        //}
+        // Extract the root XML piece (which should be an Element, of course).
+        Piece rootPiece = extractPiece(tokenIterator, stackOfXmlPieces);
+        if ( ! (rootPiece instanceof Element) ) {
+            throw new RuntimeException(String.format("Expected an Element, but this has come now: %s", rootPiece.toString()));
+        }
+        Element rootElement = (Element) rootPiece;
+        xmlDocument.setDocumentElement(rootElement);
+
+        // Integrity check.
+        // The XML pieces' stack should be empty.
+        if ( ! (stackOfXmlPieces.isEmpty()) ) {
+            throw new RuntimeException(String.format("There are some unprocessed XML pieces on the stack: %s", stackOfXmlPieces.toString()));
+        }
+
+        // Integrity check.
+        // There should be no more tokens to process via the iterator.
+        if ( ! ( ! tokenIterator.hasNext() ) ) {
+            throw new RuntimeException(String.format("An XML document is supposed to have exacle ONE DOCUMENT ELEMENT."));
+        }
+
+        // Done!
+
+    }
+
+
+
+    //private Document getDocument(Iterator<Token> tokenIterator) {
+    /**
+     * Extracts a Document object out of the current token.
+     * 
+     * @param tokenIterator Token iterator to process tokens.
+     * @return Returns a Document object with data from the current token.
+     */
+    private Document extractDocument(Iterator<Token> tokenIterator) {
+
+        // Create a document element and set up its main attributes.
+        // This shall be this method's result.
+        Document document = new Document();
+
+        // A processing instruction token is expected here.
+        if ( ! (tokenIterator.hasNext()) ) {
+            throw new RuntimeException(String.format("A (processing instruction) token is expected to be currently available. But there's no token left."));
+        }
+
+        // Access the current token.
+        Token currentToken = tokenIterator.next();
+
+        // A processing instruction token is expected here.
+        if ( ! (currentToken instanceof ProcessingToken) ) {
+            throw new RuntimeException(String.format("A processing instruction token is expected here, but the current token is '%s'.", currentToken.toString()));
+        }
+        ProcessingToken processingToken = (ProcessingToken) currentToken;
+
+        // The "xml" processing instruction is expected.
+        if ( ! ("xml".equals(processingToken.getName())) ) {
+            throw new RuntimeException(String.format("The \"xml\" processing instruction token is expected here, but the current token is '%s'.", currentToken.toString()));
+        }
+
+        // Check the number of attributes.
+        // Load attribute values.
+        int attrCount = 0;
+        if (processingToken.getAttributesAndValues().containsKey("version")) {
+            attrCount++;
+            document.setVersion(processingToken.getAttributesAndValues().get("version"));
+        }
+        if (processingToken.getAttributesAndValues().containsKey("encoding")) {
+            attrCount++;
+            document.setEncoding(processingToken.getAttributesAndValues().get("encoding"));
+        }
+        if ( ! (attrCount == processingToken.getAttributesAndValues().size()) ) {
+            throw new RuntimeException(String.format("The \"xml\" processing instruction is expected to have two attributes: 'version' and 'encoding'. Whereas this processing instruction token contains these: %s", processingToken.getAttributesAndValues()));
+        }
+
+        // Return the result.
+        return document;
+
+    }
+
+
+
+    /**
+     * Extracts an XML piece from the list of Token objects.
+     * Uses recursion.
+     * 
+     * @param tokenIterator Iterates through tokens.
+     * @param stackOfXmlPieces Stack of XML pieces that have not been fully processed.
+     * @return Returns the extracted piece.
+     */
+    private Piece extractPiece(Iterator<Token> tokenIterator, Deque<Piece> stackOfXmlPieces) {
+
+        // Prepare a result.
+        Piece extractedPiece = null;
+
+        // Encapsulate the entire method into an infinite loop.
+        for (;;) {
+
+            // Integrity check.
+            // Here, we expect a piece.
+            // Therefore, the list of unprocessed tokens must NOT be empty.
+            if ( ! (tokenIterator.hasNext()) ) {
+                throw new RuntimeException(String.format("No more tokens left, but an XML piece is expected!"));
+            }
+
+            // Get the current XML token.
+            Token currentToken = tokenIterator.next();
+
+            // Depending on the type of the token, do the following:
+            if (currentToken instanceof ProcessingToken) {
+
+                // Processing instruction.
+
+                // Nonsense. This should not happen in the course of syntax analysis.
+                throw new RuntimeException(String.format("Processing instructions not expected in this phase: %s", currentToken.toString()));
+
+            } else if (currentToken instanceof ElementToken) {
+
+                // Element token.
+
+                // Access the element token.
+                ElementToken elementToken = (ElementToken) currentToken;
+
+                // Now, it depends on whether this is an opening tag or a closing tag.
+                if (elementToken.isOpeningTag()) {
+
+                    // Opening tag.
+
+                    // Create an element XML piece and put it on the stack.
+                    //Element element = new Element(elementToken.getName());
+                    Element element = new Element(elementToken);
+                    stackOfXmlPieces.push(element);
+
+                    // Start a method to extract subelements of this element.
+                    extractPiece(tokenIterator, stackOfXmlPieces);
+
+                } else {
+
+                    // Closing tag.
+
+                    // Access the top element.
+                    Element elementOnTop = getTopElement(stackOfXmlPieces, false);
+
+                    // Integrity check.
+                    // The element on the stack has the same name as the current closing tag.
+                    if ( ! (elementOnTop.getName().equals(elementToken.getName())) ) {
+                        throw new RuntimeException(String.format("The current closing tag is: '%s'. However, we've been expecting: %s", elementToken.toString(), elementOnTop.getName()));
+                    }
+
+                    // OK. We've successfully processed an XML element.
+                    // Now, just pop it out of the stack.
+                    stackOfXmlPieces.pop();
+
+                    // If there are more elements on the stack, add the element we've just closed to that element's parent.
+                    Element parentElement = getTopElement(stackOfXmlPieces, true);
+                    if (parentElement != null) {
+                        parentElement.addElement(elementOnTop);
+                    }
+
+                    // And return it as a result of this method.
+                    //return pieceOnTop;
+                    return elementOnTop;
+
+                }
+
+            } else if (currentToken instanceof TextToken) {
+
+                // Text token.
+
+                // Add the text contents to the parent Element token.
+                TextToken textToken = (TextToken) currentToken;
+
+                // Access the top element.
+                Element elementOnTop = getTopElement(stackOfXmlPieces, false);
+
+                // Add the current text token to the parent element.
+                //elementOnTop.addText(textToken);
+                Text text = new Text(textToken);
+                elementOnTop.addText(text);
+
+            } else {
+
+                // Uknown token.
+
+                // This is an integrity issue (syntax error).
+                throw new RuntimeException(String.format("This token is not supported here: '%s'", currentToken.toString()));
+
+            } // END OF the token type selection.
+
+        } // END OF the main loop.
+
+        //// Return the result.
+        //return extractedPiece;
+        //throw new RuntimeException(String.format("Unexpected situation occurred while analyzing the text of an XML document."));
+
+    }
+
+
+
+    /**
+     * Gets an Element on the top of the stack of XML pieces.
+     * Keeps the element on the stack (using peek() not pop()).
+     * 
+     * @param stackOfXmlPieces XML pieces' stack.
+     * @param ignoreIfMissing True :-: ignore the situation where there are no more elements on the stack (and return null), false :-: if the stack is empty, then throw an exception.
+     * @return Returns the top element from the given stack, or null if the stack is empty (see parameters).
+     */
+    private Element getTopElement(Deque<Piece> stackOfXmlPieces, boolean ignoreIfMissing) {
+
+        // Integrity check.
+        // When the given stack is empty.
+        if (stackOfXmlPieces.isEmpty()) {
+            if (ignoreIfMissing) {
+                // Just return null, do not throw an exception.
+                return null;
+            } else {
+                // We expected a particular element on the stack. Throw an exception.
+                throw new RuntimeException(String.format("The stack of XML pieces is empty!"));
+            }
+        }
+
+        // There should be an element on the top of the XML pieces' stack.
+        Piece pieceOnTop = stackOfXmlPieces.peek();
+
+        // Integrity check.
+        // The top piece should be an element.
+        if ( ! (pieceOnTop instanceof Element) ) {
+            throw new RuntimeException(String.format("This type (%s) of XML piece is not expected here: %s", pieceOnTop.getClass().getName(), pieceOnTop.toString()));
+        }
+
+        // Access the element.
+        Element elementOnTop = (Element) pieceOnTop;
+
+        // return the result.
+        return elementOnTop;
 
     }
 

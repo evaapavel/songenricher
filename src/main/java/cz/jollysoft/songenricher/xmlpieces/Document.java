@@ -40,7 +40,8 @@ public class Document {
     public Document(String version, String encoding, String documentElementName) {
         this.version = version;
         this.encoding = encoding;
-        setDocumentElement(new Element(documentElementName));
+        //setDocumentElement(new Element(documentElementName));
+        this.documentElement = new Element(documentElementName);
     }
 
 
