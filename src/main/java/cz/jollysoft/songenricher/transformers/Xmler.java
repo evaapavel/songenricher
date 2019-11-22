@@ -17,6 +17,9 @@ import cz.jollysoft.songenricher.xmlpieces.Element;
 //import cz.jollysoft.songenricher.xmlpieces.Piece;
 //import cz.jollysoft.songenricher.xmlpieces.Text;
 
+import static cz.jollysoft.songenricher.constants.AppConstants.NEW_LINE_SEQUENCE;
+import static cz.jollysoft.songenricher.util.AppUtils.matchesPattern;
+
 
 
 /**
@@ -32,8 +35,8 @@ public class Xmler {
     //private static final String XML_IDENTIFIER_REGEX = "[a-zA-Z\\_\\-][a-zA-Z\\_\\-0-9]*";
     private static final String XML_IDENTIFIER_REGEX = "[a-zA-Z\\_][a-zA-Z\\_\\-0-9]*";
 
-    /** Platform dependent newline character(s). CRLF for Windows, LF for Linux, CR for Mac. */
-    private static final String NEW_LINE_SEQUENCE = ( ((System.getProperty("line.separator") != null) && (System.getProperty("line.separator").length() > 0)) ? (System.getProperty("line.separator")) : ("\n") );
+    // /** Platform dependent newline character(s). CRLF for Windows, LF for Linux, CR for Mac. */
+    //private static final String NEW_LINE_SEQUENCE = ( ((System.getProperty("line.separator") != null) && (System.getProperty("line.separator").length() > 0)) ? (System.getProperty("line.separator")) : ("\n") );
 
 
 
@@ -479,16 +482,16 @@ public class Xmler {
 
 
 
-    /**
-     * Checks whether a given text part matches a given pattern.
-     * 
-     * @param textPart Text part to check.
-     * @param regexPattern Pattern to check the given text part against.
-     * @return Returns true :-: the given text part matches the given pattern, false :-: the given text part does NOT match the given pattern.
-     */
-    private boolean matchesPattern(String textPart, String regexPattern) {
-        return textPart.matches(regexPattern);
-    }
+    // /**
+    //  * Checks whether a given text part matches a given pattern.
+    //  * 
+    //  * @param textPart Text part to check.
+    //  * @param regexPattern Pattern to check the given text part against.
+    //  * @return Returns true :-: the given text part matches the given pattern, false :-: the given text part does NOT match the given pattern.
+    //  */
+    // private boolean matchesPattern(String textPart, String regexPattern) {
+    //     return textPart.matches(regexPattern);
+    // }
 
 
 
