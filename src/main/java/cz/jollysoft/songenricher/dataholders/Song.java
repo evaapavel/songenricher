@@ -61,6 +61,13 @@ public class Song {
 
 
 
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
+    }
+
+
+
     /**
      * Creates an instance of this class out of given XML.
      * 

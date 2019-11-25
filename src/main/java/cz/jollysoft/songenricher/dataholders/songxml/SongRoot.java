@@ -137,12 +137,28 @@ public class SongRoot extends CompositeSongElement {
             // Build the child song element.
             child.buildFromXml(childElement);
 
+            // Integrity check:
+            // There should not be a child with the same name yet.
+            if ( ! ( ! subelementsByName.containsKey(child.getName()) ) ) {
+                throw new RuntimeException(String.format("An element with the same name (%s) has already been processed. Here is the list of processed elements: %s", child.getName(), subelementsByName.toString()));
+            }
+
             // Add the child element:
             // Both to the list of subelements.
             // And to the map of subelements by their names.
             getSubelements().add(child);
             subelementsByName.put(child.getName(), child);
 
+        }
+
+        // Once we've processed all the song elements, let's make sure there are at least these:
+        // title
+        if ( ! (subelementsByName.containsKey("title")) ) {
+            throw new RuntimeException(String.format("A song is supposed to have a title. The list of song elements does not contain a 'title' element: %s", subelementsByName.toString()));
+        }
+        // lyrics
+        if ( ! (subelementsByName.containsKey("lyrics")) ) {
+            throw new RuntimeException(String.format("A song is supposed to have lyrics. The list of song elements does not contain a 'lyrics' element: %s", subelementsByName.toString()));
         }
 
     }

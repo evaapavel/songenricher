@@ -6,6 +6,7 @@ import java.util.function.Function;
 
 import cz.jollysoft.songenricher.dataholders.Ensemble;
 import cz.jollysoft.songenricher.dataholders.Song;
+import cz.jollysoft.songenricher.transformers.Lyricser;
 import cz.jollysoft.songenricher.transformers.Songer;
 import cz.jollysoft.songenricher.transformers.Xmler;
 import cz.jollysoft.songenricher.xmlpieces.Document;
@@ -64,6 +65,14 @@ public class SongParser implements Function<Ensemble, Song> {
         Songer songer = new Songer(xmlDocument);
         songer.convertXmlToSong();
         Song song = songer.getSong();
+
+        // Store the reference to the associated file into the song.
+        song.setEnsemble(ensemble);
+
+        // Parse the lyrics into song sections.
+        Lyricser lyricser = new Lyricser(song);
+        lyricser.parseLyrics();
+        song = lyricser.getSong();
 
         // Return the result.
         return song;

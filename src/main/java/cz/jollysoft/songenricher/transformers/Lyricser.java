@@ -10,6 +10,7 @@ import cz.jollysoft.songenricher.dataholders.Song;
 import cz.jollysoft.songenricher.dataholders.songmarkup.Section;
 
 import static cz.jollysoft.songenricher.constants.AppConstants.NEW_LINE_SEQUENCE;
+import static cz.jollysoft.songenricher.constants.AppConstants.SECTION_BEGINNING_REGEX;
 import static cz.jollysoft.songenricher.util.AppUtils.matchesPattern;
 
 
@@ -25,7 +26,7 @@ public class Lyricser {
 
     /** Regular expression describing a line that represents the beginning of a lyrics section. */
     //private static final String SECTION_BEGINNING_REGEX = "\\[((V(([1-9][0-9]*(([abcdABCD])|()))|()))|(C(([1-4](([abcdABCD])|()))|()))|(B)|(P)|(T))\\]";
-    private static final String SECTION_BEGINNING_REGEX = "\\[((V(([1-9][0-9]*(([abcdABCD])|()))|()))|(C(((([1-4])|())(([abcdABCD])|()))|()))|(B)|(P)|(T))\\]";
+    //private static final String SECTION_BEGINNING_REGEX = "\\[((V(([1-9][0-9]*(([abcdABCD])|()))|()))|(C(((([1-4])|())(([abcdABCD])|()))|()))|(B)|(P)|(T))\\]";
 
 
 
