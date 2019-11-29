@@ -37,8 +37,16 @@ public class Ensemble {
         return path;
     }
 
+    //public void setPath(Path path) {
+    //    this.path = path;
+    //}
+
     public List<String> getLines() {
         return lines;
+    }
+
+    public void setLines(List<String> lines) {
+        this.lines = lines;
     }
 
 

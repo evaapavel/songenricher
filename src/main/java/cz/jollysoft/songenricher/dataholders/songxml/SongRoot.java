@@ -2,7 +2,7 @@ package cz.jollysoft.songenricher.dataholders.songxml;
 
 
 
-import static cz.jollysoft.songenricher.constants.AppConstants.NEW_LINE_SEQUENCE;
+import static cz.jollysoft.songenricher.constants.AppConstants.NEWLINE_SEQUENCE;
 
 import java.util.Map;
 import java.util.HashMap;
@@ -169,11 +169,11 @@ public class SongRoot extends CompositeSongElement {
     public String toString() {
         return
             getName()
-            + NEW_LINE_SEQUENCE
+            + NEWLINE_SEQUENCE
             + getSubelements().stream()
                 //.map(Object::toString)
                 .map(SongElement::toString)
-                .reduce("", (acc, s) -> acc.concat(s).concat(NEW_LINE_SEQUENCE))
+                .reduce("", (acc, s) -> acc.concat(s).concat(NEWLINE_SEQUENCE))
         ;
     }
 

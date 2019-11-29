@@ -11,6 +11,7 @@ import cz.jollysoft.songenricher.dataholders.Ensemble;
 import cz.jollysoft.songenricher.dataholders.Song;
 import cz.jollysoft.songenricher.dataholders.songmarkup.Chorus;
 import cz.jollysoft.songenricher.dataholders.songmarkup.Verse;
+import cz.jollysoft.songenricher.transformers.Lyricser;
 
 
 
@@ -86,6 +87,11 @@ public class SongEnricher implements UnaryOperator<Song> {
 
         // Add numbering to verses and choruses.
         addNumbering(enrichedSong);
+
+        // Serialize the song sections back to the lyrics song element.
+        Lyricser lyricser = new Lyricser(song);
+        lyricser.synthesizeLyrics();
+        song = lyricser.getSong();
 
         // Done!
 

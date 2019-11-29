@@ -4,12 +4,13 @@ package cz.jollysoft.songenricher.transformers;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.ArrayList;
 
 import cz.jollysoft.songenricher.dataholders.Song;
 import cz.jollysoft.songenricher.dataholders.songmarkup.Section;
 
-import static cz.jollysoft.songenricher.constants.AppConstants.NEW_LINE_SEQUENCE;
+import static cz.jollysoft.songenricher.constants.AppConstants.NEWLINE_SEQUENCE;
 import static cz.jollysoft.songenricher.constants.AppConstants.SECTION_BEGINNING_REGEX;
 import static cz.jollysoft.songenricher.util.AppUtils.matchesPattern;
 
@@ -48,6 +49,36 @@ public class Lyricser {
 
     public Song getSong() {
         return song;
+    }
+
+
+
+    /**
+     * Assumes that lyrics in the given song was parsed somewhere in the past.
+     * Now, the task is opposite:
+     * This method wants to convert parsed parts of the lyrics back to a lyrics string
+     * and to store the resulting string to the lyrics song element.
+     */
+    public void synthesizeLyrics() {
+        // This task should be much easier than the parsing one.
+        String synthesizedLyrics = synthesize(song.getSongRoot().getLyrics().getSections());
+        song.getSongRoot().getLyrics().setInnerText(synthesizedLyrics);
+    }
+
+
+
+    /**
+     * Synthesize given lyrics sections into a single string.
+     * 
+     * @param sections Sections of lyrics to synthesize.
+     * @return Returns a string with lyrics synthesized from the given sections.
+     */
+    private String synthesize(List<Section> sections) {
+        Optional<String> synthesizedLyrics = sections.stream()
+            .map(sec -> sec.toLyrics())
+            .reduce((acc, lyr) -> acc.concat(NEWLINE_SEQUENCE).concat(lyr))
+        ;
+        return synthesizedLyrics.orElse("");
     }
 
 
@@ -156,7 +187,7 @@ public class Lyricser {
                 // Handle the previous section first.
                 if (currentSection != null) {
                     String sectionLyricsText = linesWithinSection.stream()
-                        .reduce((acc, s) -> acc.concat(NEW_LINE_SEQUENCE).concat(s))
+                        .reduce((acc, s) -> acc.concat(NEWLINE_SEQUENCE).concat(s))
                         .orElse("")
                     ;
                     currentSection.setLyricsText(sectionLyricsText);
@@ -177,7 +208,7 @@ public class Lyricser {
         // Add the last section to the list.
         if (currentSection != null) {
             String sectionLyricsText = linesWithinSection.stream()
-                .reduce((acc, s) -> acc.concat(NEW_LINE_SEQUENCE).concat(s))
+                .reduce((acc, s) -> acc.concat(NEWLINE_SEQUENCE).concat(s))
                 .orElse("")
             ;
             currentSection.setLyricsText(sectionLyricsText);

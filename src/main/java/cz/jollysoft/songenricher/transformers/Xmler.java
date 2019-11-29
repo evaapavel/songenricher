@@ -17,13 +17,14 @@ import cz.jollysoft.songenricher.xmlpieces.Element;
 //import cz.jollysoft.songenricher.xmlpieces.Piece;
 //import cz.jollysoft.songenricher.xmlpieces.Text;
 
-import static cz.jollysoft.songenricher.constants.AppConstants.NEW_LINE_SEQUENCE;
+import static cz.jollysoft.songenricher.constants.AppConstants.NEWLINE_SEQUENCE;
 import static cz.jollysoft.songenricher.util.AppUtils.matchesPattern;
 
 
 
 /**
  * Helps to transform a list of text lines into an XML document.
+ * Can be used for the reverse operation as well when a need be to transform an XML document into text lines.
  * 
  * @author Pavel Foltyn
  */
@@ -36,7 +37,7 @@ public class Xmler {
     private static final String XML_IDENTIFIER_REGEX = "[a-zA-Z\\_][a-zA-Z\\_\\-0-9]*";
 
     // /** Platform dependent newline character(s). CRLF for Windows, LF for Linux, CR for Mac. */
-    //private static final String NEW_LINE_SEQUENCE = ( ((System.getProperty("line.separator") != null) && (System.getProperty("line.separator").length() > 0)) ? (System.getProperty("line.separator")) : ("\n") );
+    //private static final String NEWLINE_SEQUENCE = ( ((System.getProperty("line.separator") != null) && (System.getProperty("line.separator").length() > 0)) ? (System.getProperty("line.separator")) : ("\n") );
 
 
 
@@ -51,6 +52,17 @@ public class Xmler {
 
     /** XML document made out of the given text. */
     private Document xmlDocument;
+
+
+
+    /**
+     * Constructor.
+     * 
+     * @param xmlDocument XML document to transform into text lines.
+     */
+    public Xmler(Document xmlDocument) {
+        this.xmlDocument = xmlDocument;
+    }
 
 
 
@@ -82,6 +94,20 @@ public class Xmler {
 
 
 
+    public List<String> getLines() {
+        return lines;
+    }
+
+
+    /**
+     * Gets the given XML document and tries to produce lines of text out of it.
+     */
+    public void synthetize() {
+        // TODO: Implement this!
+    }
+
+
+
     /**
      * Parses the given input text and tries to convert it into an XML document.
      */
@@ -108,7 +134,7 @@ public class Xmler {
             // Try to keep newline characters between the lines.
             //.reduce("", (acc, s) -> acc.concat("\n").concat(s))
             //.reduce((acc, s) -> acc.concat("\n").concat(s))
-            .reduce((acc, s) -> acc.concat(NEW_LINE_SEQUENCE).concat(s))
+            .reduce((acc, s) -> acc.concat(NEWLINE_SEQUENCE).concat(s))
             // Here we've got an Optional<String>.
             .orElse("")
         ;

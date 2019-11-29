@@ -1,9 +1,14 @@
 package cz.jollysoft.songenricher.dataholders.songmarkup;
 
 
+import java.util.stream.Stream;
+import java.util.stream.Collectors;
+import java.util.List;
+import java.util.ArrayList;
 
 import static cz.jollysoft.songenricher.util.AppUtils.matchesPattern;
 import static cz.jollysoft.songenricher.constants.AppConstants.SECTION_BEGINNING_REGEX;
+import static cz.jollysoft.songenricher.constants.AppConstants.NEWLINE_SEQUENCE;;
 
 
 
@@ -284,6 +289,49 @@ public class Section {
 
         }
 
+    }
+
+
+
+    /**
+     * Converts this section back to a part of the lyrics string.
+     * 
+     * @return Returns this section converted into a partial lyrics string.
+     */
+    public String toLyrics() {
+
+        //return toString();
+
+        // Prepare lyrics text. Add indentation.
+        String[] lyricsTextLines = lyricsText.split("((\n)|(\r\n)|(\r))");
+        List<String> linesIndented = Stream.of(lyricsTextLines)
+            .map(line -> " " + line.trim())
+            .collect(Collectors.toList())
+        ;
+
+        // Prepare the section name line.
+        String nameLine = String.format("[%s]", name);
+
+        // Prepare all lines together.
+        List<String> allLines = new ArrayList<>();
+        allLines.add(nameLine);
+        allLines.addAll(linesIndented);
+
+        // Put all together.
+        String lyricsComplete = allLines.stream()
+            .reduce("", (acc, s) -> acc.concat(NEWLINE_SEQUENCE).concat(s))
+        ;
+
+        // Return the result.
+        return lyricsComplete;
+
+    }
+
+
+
+    @Override
+    public String toString() {
+        return String.format("[%s]%s%s", name, NEWLINE_SEQUENCE, lyricsText);
     }
 
 
