@@ -68,6 +68,16 @@ public abstract class SimpleSongElement extends SongElement {
 
 
     @Override
+    public Element toXmlElement(Element parentXmlElement) {
+        Element xmlElement = new Element(getName(), parentXmlElement);
+        Text xmlText = new Text(innerText, xmlElement);
+        xmlElement.addText(xmlText);
+        return xmlElement;
+    }
+
+
+
+    @Override
     public String toString() {
         //return getName() + new Optional<String>(innerText);
         //return getName() + new<String> Optional(innerText);

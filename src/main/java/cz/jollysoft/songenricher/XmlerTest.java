@@ -100,10 +100,10 @@ public class XmlerTest {
      * 
      * @param piece XML piece to print.
      * @param indentationLevel Number of spaces to make on each line before printing useful data.
-     * @param noNewLines True :-: do NOT print any new lines, false :-: do perform println (with new line characters at the end).
+     * @param noNewlines True :-: do NOT print any newlines, false :-: do perform println (with newline characters at the end).
      * @param noIndents True :-: do NOT apply indentation at the beginning of printing, false :-: do APPLY the indentation.
      */
-    private static void printXmlPiece(Piece piece, int indentationLevel, boolean noNewLines, boolean noIndents) {
+    private static void printXmlPiece(Piece piece, int indentationLevel, boolean noNewlines, boolean noIndents) {
 
         // Prepare indenting.
         String indenting = repeatString(" ", indentationLevel);
@@ -118,12 +118,12 @@ public class XmlerTest {
             //    System.out.print(indenting);
             //}
             //System.out.print(text.getPlaintext());
-            //if ( ! noNewLines ) {
+            //if ( ! noNewlines ) {
             //    System.out.println();
             //}
             printIndents((! noIndents), indenting);
             System.out.print(text.getPlaintext());
-            printNewLine(! noNewLines);
+            printNewline(! noNewlines);
 
         } else if (piece instanceof Element) {
 
@@ -147,7 +147,7 @@ public class XmlerTest {
 
                 // Print out the closing tag.
                 System.out.print("</" + element.getName() + ">");
-                printNewLine(! noNewLines);
+                printNewline(! noNewlines);
 
             } else {
 
@@ -157,18 +157,18 @@ public class XmlerTest {
                 //System.out.println(indenting + "<" + element.getName() + xmlAttributesToString(element.getAttributes()) + ">");
                 printIndents((! noIndents), indenting);
                 System.out.print("<" + element.getName() + xmlAttributesToString(element.getAttributes()) + ">");
-                printNewLine(! noNewLines);
+                printNewline(! noNewlines);
 
                 // Print out the subelements.
                 for (Piece childPiece : element.getSubpieces()) {
-                    printXmlPiece(childPiece, indentationLevel + 2, noNewLines, noIndents);
+                    printXmlPiece(childPiece, indentationLevel + 2, noNewlines, noIndents);
                 }
 
                 // Print out the closing tag.
                 //System.out.println(indenting + "</" + element.getName() + ">");
                 printIndents((! noIndents), indenting);
                 System.out.print("</" + element.getName() + ">");
-                printNewLine(! noNewLines);
+                printNewline(! noNewlines);
 
             }
 
@@ -237,12 +237,12 @@ public class XmlerTest {
 
 
     /**
-     * Sends a new-line to stdout if required.
+     * Sends a newline to stdout if required.
      * 
-     * @param doNewLine True :-: DO send the new-line character to stdout, false :-: do NOT send any new-line characters.
+     * @param doNewline True :-: DO send the newline character to stdout, false :-: do NOT send any newline characters.
      */
-    private static void printNewLine(boolean doNewLine) {
-        if (doNewLine) {
+    private static void printNewline(boolean doNewline) {
+        if (doNewline) {
             System.out.println();
         }
     }

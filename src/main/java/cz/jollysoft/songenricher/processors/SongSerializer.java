@@ -52,7 +52,7 @@ public class SongSerializer implements Function<Song, Ensemble> {
         Document xmlDocument = songer.getXmlDocument();
 
         // Transform the generated XML into lines of the file.
-        Xmler xmler = new Xmler(xmlDocument);
+        Xmler xmler = new Xmler(xmlDocument, 2);
         xmler.synthetize();
         List<String> lines = xmler.getLines();
 

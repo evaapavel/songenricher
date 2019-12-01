@@ -3,13 +3,13 @@ package cz.jollysoft.songenricher.processors;
 
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
+//import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
-import java.nio.channels.ByteChannel;
+//import java.nio.channels.ByteChannel;
 import java.nio.channels.FileChannel;
-import java.nio.channels.FileLock;
-import java.nio.channels.ReadableByteChannel;
-import java.nio.channels.WritableByteChannel;
+//import java.nio.channels.FileLock;
+//import java.nio.channels.ReadableByteChannel;
+//import java.nio.channels.WritableByteChannel;
 import java.nio.channels.FileChannel.MapMode;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -73,7 +73,7 @@ public class EnsembleSaver implements Consumer<Ensemble> {
 
             // Open a channel for writing and map the byte buffer to the channel.
             outputFile = (FileChannel) Files.newByteChannel(ensemble.getPath(), StandardOpenOption.CREATE, StandardOpenOption.READ, StandardOpenOption.WRITE);
-            ByteBuffer buffer = outputFile.map(MapMode.READ_WRITE, 0L, (long) fileContentsAsByteArray.length);
+            MappedByteBuffer buffer = outputFile.map(MapMode.READ_WRITE, 0L, (long) fileContentsAsByteArray.length);
 
             // Write the file contents to the buffer.
             // The channel-buffer mapping should handle the rest.

@@ -4,6 +4,7 @@ package cz.jollysoft.songenricher.dataholders;
 
 import cz.jollysoft.songenricher.dataholders.songxml.SongRoot;
 import cz.jollysoft.songenricher.xmlpieces.Document;
+import cz.jollysoft.songenricher.xmlpieces.Element;
 
 
 
@@ -64,6 +65,20 @@ public class Song {
     @Override
     public Object clone() throws CloneNotSupportedException {
         return super.clone();
+    }
+
+
+
+    /**
+     * Converts this song (which is represented by dedicated XML) to general-purpose XML.
+     * 
+     * @return Returns a Document object which encapsulates XML elements, attributes, etc.
+     */
+    public Document toXmlDocument() {
+        Document xmlDocument = new Document("1.0", "UTF-8", "song");
+        Element documentElement = songRoot.toXmlElement();
+        xmlDocument.setDocumentElement(documentElement);
+        return xmlDocument;
     }
 
 

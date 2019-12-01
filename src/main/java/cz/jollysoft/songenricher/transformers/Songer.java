@@ -75,7 +75,10 @@ public class Songer {
      * Converts the given open song to generic XML structure.
      */
     public void convertSongToXml() {
-        // TODO: Implement this!
+
+        // Convert the given song to XML.
+        xmlDocument = song.toXmlDocument();
+
     }
 
 

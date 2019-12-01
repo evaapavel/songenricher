@@ -179,4 +179,15 @@ public class SongRoot extends CompositeSongElement {
 
 
 
+    /**
+     * Converts the song data to general purpose XML.
+     * 
+     * @return Returns an XML element with this song's data.
+     */
+    public Element toXmlElement() {
+        return toXmlElement(null);
+    }
+
+
+
 }

@@ -55,6 +55,16 @@ public abstract class SongElement {
 
 
 
+    /**
+     * Converts this song element back to XML.
+     * 
+     * @param parentXmlElement Parent XML element of the element to return.
+     * @return Returns an XML element with data from this song element.
+     */
+    public abstract Element toXmlElement(Element parentXmlElement);
+
+
+
     @Override
     public String toString() {
         return getName();

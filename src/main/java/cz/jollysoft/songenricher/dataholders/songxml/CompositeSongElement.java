@@ -5,6 +5,8 @@ package cz.jollysoft.songenricher.dataholders.songxml;
 import java.util.ArrayList;
 import java.util.List;
 
+import cz.jollysoft.songenricher.xmlpieces.Element;
+
 
 
 /**
@@ -41,6 +43,18 @@ public abstract class CompositeSongElement extends SongElement {
     //public void setSubelements(List<SongElement> subelements) {
     //    this.subelements = subelements;
     //}
+
+
+
+    @Override
+    public Element toXmlElement(Element parentXmlElement) {
+        Element xmlElement = new Element(getName(), parentXmlElement);
+        subelements.stream()
+            .map(se -> se.toXmlElement(xmlElement))
+            .forEach(xmlElement::addElement);
+        ;
+        return xmlElement;
+    }
 
 
 

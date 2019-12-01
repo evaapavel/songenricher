@@ -1,7 +1,13 @@
 package cz.jollysoft.songenricher.transformers;
 
+
+
 import java.util.List;
+import java.util.Scanner;
 import java.util.stream.Collectors;
+import java.io.PrintWriter;
+import java.io.StringReader;
+import java.io.StringWriter;
 //import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -12,10 +18,11 @@ import cz.jollysoft.songenricher.transformers.xml.ElementToken;
 import cz.jollysoft.songenricher.transformers.xml.ProcessingToken;
 import cz.jollysoft.songenricher.transformers.xml.TextToken;
 import cz.jollysoft.songenricher.transformers.xml.Token;
+import cz.jollysoft.songenricher.xmlpieces.Attribute;
 import cz.jollysoft.songenricher.xmlpieces.Document;
 import cz.jollysoft.songenricher.xmlpieces.Element;
-//import cz.jollysoft.songenricher.xmlpieces.Piece;
-//import cz.jollysoft.songenricher.xmlpieces.Text;
+import cz.jollysoft.songenricher.xmlpieces.Piece;
+import cz.jollysoft.songenricher.xmlpieces.Text;
 
 import static cz.jollysoft.songenricher.constants.AppConstants.NEWLINE_SEQUENCE;
 import static cz.jollysoft.songenricher.util.AppUtils.matchesPattern;
@@ -55,13 +62,22 @@ public class Xmler {
 
 
 
+    /** Number of spaces to add at the beginning of a line when converting an XML document to text lines and a new recursion level is to start. */
+    private int indentationStep = 2;
+
+    /** Print writer to use when converting XML to text. */
+    private PrintWriter printWriter;
+
+
+
     /**
      * Constructor.
      * 
      * @param xmlDocument XML document to transform into text lines.
      */
-    public Xmler(Document xmlDocument) {
+    public Xmler(Document xmlDocument, int indentationStep) {
         this.xmlDocument = xmlDocument;
+        this.indentationStep = indentationStep;
     }
 
 
@@ -99,11 +115,22 @@ public class Xmler {
     }
 
 
+
+    public int getIndentationStep() {
+        return indentationStep;
+    }
+
+    public void setIndentationStep(int indentationStep) {
+        this.indentationStep = indentationStep;
+    }
+
+
+
     /**
      * Gets the given XML document and tries to produce lines of text out of it.
      */
     public void synthetize() {
-        // TODO: Implement this!
+        printXmlToWriterAndConvertToLines();
     }
 
 
@@ -1187,6 +1214,222 @@ public class Xmler {
     //     return null;
 
     // }
+
+
+
+    /**
+     * Prints the given XML document to a PrintWriter
+     * and once the "printing" is done, the method takes the "printed" text
+     * and converts it to text lines.
+     */
+    private void printXmlToWriterAndConvertToLines() {
+
+        // Print XML to a TextWriter.
+
+        // Open a TextWriter.
+        StringWriter stringWriter = new StringWriter();
+        printWriter = new PrintWriter(stringWriter);
+
+        // Print the initial processing instruction to the writer.
+        printInitialProcessingInstruction();
+
+        // Print the rest of XML to the writer.
+        printXmlPiece(xmlDocument.getDocumentElement(), 0, false, false);
+
+        // Extract printed data.
+        String printedText = printWriter.toString();
+        lines = convertToLines(printedText);
+
+        // Close the writer.
+        printWriter.close();
+
+    }
+
+
+
+    /**
+     * Converts a given string to a list of lines.
+     * 
+     * @param allLinesInOne String to convert to lines.
+     * @return Returns a list of lines taken from the given string.
+     */
+    private List<String> convertToLines(String allLinesInOne) {
+
+        // Prepare a list of strings for the result of this method.
+        List<String> linesRead = new ArrayList<String>();
+
+        // Open a StringReader.
+        StringReader stringReader = new StringReader(allLinesInOne);
+        Scanner scanner = new Scanner(stringReader);
+
+        // Read lines one by one from the reader. Store the lines to the list.
+        while (scanner.hasNextLine()) {
+
+            // Read a line and store it in the resulting list.
+            String lineRead = scanner.nextLine();
+            linesRead.add(lineRead);
+
+        }
+
+        // Close the reader.
+        //stringReader.close();
+        scanner.close();
+
+        // Return the result.
+        return linesRead;
+
+    }
+
+
+
+    /**
+     * Prints the initial processing instruction to the open PrintWriter.
+     */
+    private void printInitialProcessingInstruction() {
+        //printWriter.println(String.format("<?xml version=\"1.0\" encoding=\"UTF-8\"?>"));
+        printWriter.println(String.format("<?xml version=\"%s\" encoding=\"%s\"?>", xmlDocument.getVersion(), xmlDocument.getEncoding()));
+    }
+
+
+
+    /**
+     * Prints a given XML piece to the open PrintWriter.
+     * 
+     * @param piece XML piece to print.
+     * @param indentationLevel Number of spaces to make on each line before printing useful data.
+     * @param noNewlines True :-: do NOT print any newlines, false :-: do perform println (with newline characters at the end).
+     * @param noIndents True :-: do NOT apply indentation at the beginning of printing, false :-: do APPLY the indentation.
+     */
+    private void printXmlPiece(Piece piece, int indentationLevel, boolean noNewlines, boolean noIndents) {
+
+        // Prepare indenting.
+        String indenting = repeatString(" ", indentationLevel);
+
+        // Print out the given XML piece using the given indentation level.
+        if (piece instanceof Text) {
+
+            // A Text XML piece.
+            Text text = (Text) piece;
+            printIndents((! noIndents), indenting);
+            printWriter.print(text.getPlaintext());
+            printNewline(! noNewlines);
+
+        } else if (piece instanceof Element) {
+
+            // An Element XML piece.
+            Element element = (Element) piece;
+
+            // Decide on "compact" printing.
+            if ( (element.getSubelements().size() == 0) && (element.getSubpieces().size() <= 1) ) {
+
+                // If the current element has no subelements and does have one subpiece (i.e. a text piece) at the most,
+                // then print out the element and its contents in a compact mode.
+
+                // Print out the opening tag.
+                printIndents((! noIndents), indenting);
+                printWriter.print("<" + element.getName() + xmlAttributesToString(element.getAttributes()) + ">");
+
+                // Print out the subelements.
+                for (Piece childPiece : element.getSubpieces()) {
+                    //printXmlPiece(childPiece, indentationLevel + 2, true, true);
+                    printXmlPiece(childPiece, indentationLevel + indentationStep, true, true);
+                }
+
+                // Print out the closing tag.
+                printWriter.print("</" + element.getName() + ">");
+                printNewline(! noNewlines);
+
+            } else {
+
+                // Standard behaviour.
+
+                // Print out the opening tag.
+                printIndents((! noIndents), indenting);
+                printWriter.print("<" + element.getName() + xmlAttributesToString(element.getAttributes()) + ">");
+                printNewline(! noNewlines);
+
+                // Print out the subelements.
+                for (Piece childPiece : element.getSubpieces()) {
+                    //printXmlPiece(childPiece, indentationLevel + 2, noNewlines, noIndents);
+                    printXmlPiece(childPiece, indentationLevel + indentationStep, noNewlines, noIndents);
+                }
+
+                // Print out the closing tag.
+                printIndents((! noIndents), indenting);
+                printWriter.print("</" + element.getName() + ">");
+                printNewline(! noNewlines);
+
+            }
+
+        } else {
+
+            // Error.
+            throw new RuntimeException(String.format("This type of XML piece is not supported here: %s", piece.toString()));
+
+        }
+
+    }
+
+
+
+    /**
+     * Repeats a given string a given number of times.
+     * 
+     * @param s String to repeat.
+     * @param repeatCount Number of repetitions of the given string.
+     * @return Returns a string that is a multiple concatenation of the given string. The given string gets repeated the given number of times.
+     */
+    private static String repeatString(String s, int repeatCount) {
+        return new String(new char[repeatCount]).replace("\0", s);
+    }
+
+
+
+    /**
+     * Transforms a given list of XML attributes into a single string suitable for printing the XML contents.
+     * 
+     * @param attributes XML attributes to convert to a string.
+     * @return Returns a string made out of the given list of attributes.
+     */
+    private String xmlAttributesToString(List<Attribute> attributes) {
+        return attributes.stream()
+            // Here we've got a Stream<Attribute>.
+            .map(attr -> String.format("%s=\"%s\"", attr.getName(), attr.getValue()))
+            // Here we've got a Stream<String>.
+            .reduce((acc, x) -> acc + " " + x)
+            // Here we've got an Optional<String>.
+            .map(attrs -> " " + attrs)
+            // Here we've got an Optional<String>.
+            .orElse("")
+        ;
+    }
+
+
+
+    /**
+     * Prints indentation to the open PrintWriter if required.
+     * 
+     * @param doIndents True :-: DO indentation, false :-: do NOT any indentation.
+     * @param indenting Indentation sequence (typically a few spaces).
+     */
+    private void printIndents(boolean doIndents, String indenting) {
+        if (doIndents) {
+            printWriter.print(indenting);
+        }
+    }
+
+
+
+    /**
+     * Sends a newline to the open PrintWriter if required.
+     * 
+     * @param doNewline True :-: DO send the newline character to the PrintWriter, false :-: do NOT send any newline characters.
+     */
+    private void printNewline(boolean doNewline) {
+        if (doNewline) {
+            printWriter.println();
+        }
+    }
 
 
 
