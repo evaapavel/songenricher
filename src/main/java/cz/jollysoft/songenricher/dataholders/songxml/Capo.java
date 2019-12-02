@@ -71,7 +71,8 @@ public class Capo extends SimpleSongElement {
         // Make a local action.
 
         // Integrity check first.
-        if ( ! ((element.getAttributes().size() == 1) && (element.getAttributes().get(0).getName() == "print")) ) {
+        //if ( ! ((element.getAttributes().size() == 1) && (element.getAttributes().get(0).getName() == "print")) ) {
+        if ( ! ((element.getAttributes().size() == 1) && ("print".equals(element.getAttributes().get(0).getName()))) ) {
             throw new RuntimeException(String.format("The given element is not suitable for a 'capo' song element.", element.toString()));
         }
 
