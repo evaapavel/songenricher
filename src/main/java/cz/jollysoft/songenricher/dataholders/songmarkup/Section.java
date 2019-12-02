@@ -172,6 +172,13 @@ public class Section {
         // Depending on the number of characters in the section name, proceed with the syntax analysis.
         switch (name.length()) {
 
+            case 1:
+                // The song section name has just 1 character.
+
+                // Just the section type code and nothing else.
+                // This is fine!
+                break;
+
             case 2:
                 // The song section name has 2 characters.
 
