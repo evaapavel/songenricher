@@ -17,7 +17,7 @@ public class Tempo extends SimpleSongElement {
      * @param parentElement Parent element of this element.
      */
     public Tempo(SongElement parentElement) {
-        this(null, parentElement);
+        this((String) null, parentElement);
     }
 
 
@@ -34,9 +34,29 @@ public class Tempo extends SimpleSongElement {
 
 
 
+    /**
+     * Copy constructor.
+     * 
+     * @param elementToClone Element to copy.
+     * @param newParentElement A song element to be used as the parent of the cloned object.
+     */
+    public Tempo(Tempo elementToClone, SongElement newParentElement) {
+        super(elementToClone, newParentElement);
+    }
+
+
+
     @Override
     public String getName() {
         return "tempo";
+    }
+
+
+
+    @Override
+    public SongElement clone(SongElement newParentElement) {
+        Tempo songElement = new Tempo(this, newParentElement);
+        return songElement;
     }
 
 

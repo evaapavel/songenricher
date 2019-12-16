@@ -37,6 +37,19 @@ public abstract class SimpleSongElement extends SongElement {
 
 
 
+    /**
+     * Copy constructor.
+     * 
+     * @param elementToClone Element to copy.
+     * @param newParentElement A song element to be used as the parent of the cloned object.
+     */
+    public SimpleSongElement(SimpleSongElement elementToClone, SongElement newParentElement) {
+        super(elementToClone, newParentElement);
+        this.innerText = elementToClone.innerText;
+    }
+
+
+
     public String getInnerText() {
         return innerText;
     }

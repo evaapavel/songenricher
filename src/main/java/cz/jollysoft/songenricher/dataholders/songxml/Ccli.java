@@ -17,7 +17,7 @@ public class Ccli extends SimpleSongElement {
      * @param parentElement Parent element of this element.
      */
     public Ccli(SongElement parentElement) {
-        this(null, parentElement);
+        this((String) null, parentElement);
     }
 
 
@@ -34,9 +34,29 @@ public class Ccli extends SimpleSongElement {
 
 
 
+    /**
+     * Copy constructor.
+     * 
+     * @param elementToClone Element to copy.
+     * @param newParentElement A song element to be used as the parent of the cloned object.
+     */
+    public Ccli(Ccli elementToClone, SongElement newParentElement) {
+        super(elementToClone, newParentElement);
+    }
+
+
+
     @Override
     public String getName() {
         return "ccli";
+    }
+
+
+
+    @Override
+    public SongElement clone(SongElement newParentElement) {
+        Ccli songElement = new Ccli(this, newParentElement);
+        return songElement;
     }
 
 

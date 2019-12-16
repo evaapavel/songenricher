@@ -29,7 +29,7 @@ public class Lyrics extends SimpleSongElement {
      * @param parentElement Parent element of this element.
      */
     public Lyrics(SongElement parentElement) {
-        this(null, parentElement);
+        this((String) null, parentElement);
     }
 
 
@@ -47,6 +47,24 @@ public class Lyrics extends SimpleSongElement {
 
 
 
+    /**
+     * Copy constructor.
+     * 
+     * @param elementToClone Element to copy.
+     * @param newParentElement A song element to be used as the parent of the cloned object.
+     */
+    @SuppressWarnings("unchecked")
+    public Lyrics(Lyrics elementToClone, SongElement newParentElement) {
+        super(elementToClone, newParentElement);
+        if (elementToClone.sections != null) {
+            this.sections = (List<Section>) ((ArrayList<Section>) elementToClone.sections).clone();
+        } else {
+            this.sections = null;
+        }
+    }
+
+
+
     public List<Section> getSections() {
         return sections;
     }
@@ -60,6 +78,14 @@ public class Lyrics extends SimpleSongElement {
     @Override
     public String getName() {
         return "lyrics";
+    }
+
+
+
+    @Override
+    public SongElement clone(SongElement newParentElement) {
+        Lyrics songElement = new Lyrics(this, newParentElement);
+        return songElement;
     }
 
 

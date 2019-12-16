@@ -13,7 +13,7 @@ import cz.jollysoft.songenricher.xmlpieces.Element;
  * 
  * @author Pavel Foltyn
  */
-public class Song {
+public class Song implements Cloneable {
 
 
 
@@ -29,6 +29,26 @@ public class Song {
      * Constructor.
      */
     public Song() {
+    }
+
+
+
+    /**
+     * Copy constructor.
+     * 
+     * @param song Song to copy.
+     */
+    public Song(Song song) throws CloneNotSupportedException {
+        if (song.ensemble != null) {
+            this.ensemble = (Ensemble) song.ensemble.clone();
+        } else {
+            this.ensemble = null;
+        }
+        if (song.songRoot != null) {
+            this.songRoot = (SongRoot) song.songRoot.clone();
+        } else {
+            this.songRoot = null;
+        }
     }
 
 
@@ -64,7 +84,20 @@ public class Song {
 
     @Override
     public Object clone() throws CloneNotSupportedException {
-        return super.clone();
+        //return super.clone();
+        //Song song = new Song();
+        //if (this.ensemble != null) {
+        //    song.ensemble = (Ensemble) this.ensemble.clone();
+        //} else {
+        //    song.ensemble = null;
+        //}
+        //if (this.songRoot != null) {
+        //    song.songRoot = (SongRoot) this.songRoot.clone();
+        //} else {
+        //    song.songRoot = null;
+        //}
+        Song song = new Song(this);
+        return song;
     }
 
 

@@ -25,7 +25,7 @@ import static cz.jollysoft.songenricher.constants.AppConstants.NEWLINE_SEQUENCE;
  * 
  * @author Pavel Foltyn
  */
-public class Section {
+public class Section implements Cloneable {
 
 
 

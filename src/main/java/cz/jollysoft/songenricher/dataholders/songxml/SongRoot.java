@@ -16,7 +16,7 @@ import cz.jollysoft.songenricher.xmlpieces.Element;
  * 
  * @author Pavel Foltyn
  */
-public class SongRoot extends CompositeSongElement {
+public class SongRoot extends CompositeSongElement implements Cloneable {
 
 
 
@@ -30,9 +30,75 @@ public class SongRoot extends CompositeSongElement {
      */
     public SongRoot() {
         // The root element has no parent.
-        super(null);
+        super((SongElement) null);
         subelementsByName = new HashMap<>();
     }
+
+
+
+    /**
+     * Copy constructor.
+     * 
+     * @param elementToClone Element to copy.
+     * @param newParentElement A song element to be used as the parent of the cloned object.
+     */
+    public SongRoot(SongRoot elementToClone, SongElement newParentElement) {
+        super(elementToClone, newParentElement);
+        if (elementToClone.subelementsByName != null) {
+            this.subelementsByName = new HashMap<>();
+            if (this.getSubelements() != null) {
+                for (SongElement subelement : this.getSubelements()) {
+                    this.subelementsByName.put(subelement.getName(), subelement);
+                }
+            }
+        } else {
+            this.subelementsByName = null;
+        }
+    }
+
+
+
+    /**
+     * Copy constructor.
+     * 
+     * @param songRoot SongRoot to copy.
+     */
+    public SongRoot(SongRoot songRoot) throws CloneNotSupportedException {
+        // No parent.
+        this(songRoot, (SongElement) null);
+    }
+
+
+
+    // //@SuppressWarnings("unchecked")
+    // /**
+    //  * Copy constructor.
+    //  * 
+    //  * @param songRoot SongRoot to copy.
+    //  */
+    // public SongRoot(SongRoot songRoot) throws CloneNotSupportedException {
+    //     //super(songRoot);
+    //     super(songRoot, (SongElement) null);
+    //     //if (songRoot.subelementsByName != null) {
+    //     //    this.subelementsByName = (Map<String, SongElement>) ((HashMap<String, SongElement>) songRoot.subelementsByName).clone();
+    //     //} else {
+    //     //    this.subelementsByName = null;
+    //     //}
+    //     if (songRoot.subelementsByName != null) {
+    //         this.subelementsByName = new HashMap<>();
+    //         //for (String subelementName : songRoot.subelementsByName.keySet()) {
+    //         //    SongElement subelement = songRoot.subelementsByName.get(subelementName);
+    //         //    //SongElement subelementCloned = subelement.clone(this);
+    //         //    SongElement subelementCloned = null;
+    //         //    this.subelementsByName.put(subelementName, subelementCloned);
+    //         //}
+    //         for (SongElement subelement : this.getSubelements()) {
+    //             this.subelementsByName.put(subelement.getName(), subelement);
+    //         }
+    //     } else {
+    //         this.subelementsByName = null;
+    //     }
+    // }
 
 
 
@@ -59,6 +125,23 @@ public class SongRoot extends CompositeSongElement {
     @Override
     public String getName() {
         return "song";
+    }
+
+
+
+    @Override
+    public SongElement clone(SongElement newParentElement) {
+        // No parent element.
+        SongRoot songRoot = new SongRoot(this, (SongElement) null);
+        return songRoot;
+    }
+
+
+
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        SongRoot songRoot = new SongRoot(this);
+        return songRoot;
     }
 
 

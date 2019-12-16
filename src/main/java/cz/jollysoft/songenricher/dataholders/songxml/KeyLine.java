@@ -17,7 +17,7 @@ public class KeyLine extends SimpleSongElement {
      * @param parentElement Parent element of this element.
      */
     public KeyLine(SongElement parentElement) {
-        this(null, parentElement);
+        this((String) null, parentElement);
     }
 
 
@@ -34,9 +34,29 @@ public class KeyLine extends SimpleSongElement {
 
 
 
+    /**
+     * Copy constructor.
+     * 
+     * @param elementToClone Element to copy.
+     * @param newParentElement A song element to be used as the parent of the cloned object.
+     */
+    public KeyLine(KeyLine elementToClone, SongElement newParentElement) {
+        super(elementToClone, newParentElement);
+    }
+
+
+
     @Override
     public String getName() {
         return "key_line";
+    }
+
+
+
+    @Override
+    public SongElement clone(SongElement newParentElement) {
+        KeyLine songElement = new KeyLine(this, newParentElement);
+        return songElement;
     }
 
 

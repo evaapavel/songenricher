@@ -17,7 +17,7 @@ public class Title extends SimpleSongElement {
      * @param parentElement Parent element of this element.
      */
     public Title(SongElement parentElement) {
-        this(null, parentElement);
+        this((String) null, parentElement);
     }
 
 
@@ -34,9 +34,29 @@ public class Title extends SimpleSongElement {
 
 
 
+    /**
+     * Copy constructor.
+     * 
+     * @param elementToClone Element to copy.
+     * @param newParentElement A song element to be used as the parent of the cloned object.
+     */
+    public Title(Title elementToClone, SongElement newParentElement) {
+        super(elementToClone, newParentElement);
+    }
+
+
+
     @Override
     public String getName() {
         return "title";
+    }
+
+
+
+    @Override
+    public SongElement clone(SongElement newParentElement) {
+        Title songElement = new Title(this, newParentElement);
+        return songElement;
     }
 
 

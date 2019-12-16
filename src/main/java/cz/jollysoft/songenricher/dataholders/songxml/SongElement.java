@@ -27,6 +27,18 @@ public abstract class SongElement {
 
 
 
+    /**
+     * Copy constructor.
+     * 
+     * @param elementToClone Element to copy.
+     * @param newParentElement A song element to be used as the parent of the cloned object.
+     */
+    public SongElement(SongElement elementToClone, SongElement newParentElement) {
+        this.parentElement = newParentElement;
+    }
+
+
+
     public SongElement getParentElement() {
         return parentElement;
     }
@@ -43,6 +55,16 @@ public abstract class SongElement {
      * @return Returns the name of this element.
      */
     public abstract String getName();
+
+
+
+    /**
+     * Clones this element using a given reference to another song element as the new parent of the cloned object.
+     * 
+     * @param newParentElement New parent element to be used for the new object.
+     * @return Returns the song element newly created (as a clone of this).
+     */
+    public abstract SongElement clone(SongElement newParentElement);
 
 
 

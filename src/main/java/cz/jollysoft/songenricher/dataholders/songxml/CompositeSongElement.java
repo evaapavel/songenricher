@@ -36,6 +36,26 @@ public abstract class CompositeSongElement extends SongElement {
 
 
 
+    /**
+     * Copy constructor.
+     * 
+     * @param elementToClone Element to copy.
+     * @param newParentElement A song element to be used as the parent of the cloned object.
+     */
+    public CompositeSongElement(CompositeSongElement elementToClone, SongElement newParentElement) {
+        super(elementToClone, newParentElement);
+        if (elementToClone.subelements != null) {
+            this.subelements = new ArrayList<>();
+            for (SongElement subelement : elementToClone.subelements) {
+                this.subelements.add(subelement.clone(this));
+            }
+        } else {
+            this.subelements = null;
+        }
+    }
+
+
+
     public List<SongElement> getSubelements() {
         return subelements;
     }

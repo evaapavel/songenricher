@@ -28,7 +28,7 @@ public class Capo extends SimpleSongElement {
      * @param parentElement Parent element of this element.
      */
     public Capo(SongElement parentElement) {
-        this(null, parentElement);
+        this((String) null, parentElement);
     }
 
 
@@ -41,6 +41,19 @@ public class Capo extends SimpleSongElement {
      */
     public Capo(String innerText, SongElement parentElement) {
         super(innerText, parentElement);
+    }
+
+
+
+    /**
+     * Copy constructor.
+     * 
+     * @param elementToClone Element to copy.
+     * @param newParentElement A song element to be used as the parent of the cloned object.
+     */
+    public Capo(Capo elementToClone, SongElement newParentElement) {
+        super(elementToClone, newParentElement);
+        this.print = elementToClone.print;
     }
 
 
@@ -58,6 +71,14 @@ public class Capo extends SimpleSongElement {
     @Override
     public String getName() {
         return "capo";
+    }
+
+
+
+    @Override
+    public SongElement clone(SongElement newParentElement) {
+        Capo songElement = new Capo(this, newParentElement);
+        return songElement;
     }
 
 

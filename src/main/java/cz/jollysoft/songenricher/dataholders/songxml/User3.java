@@ -17,7 +17,7 @@ public class User3 extends SimpleSongElement {
      * @param parentElement Parent element of this element.
      */
     public User3(SongElement parentElement) {
-        this(null, parentElement);
+        this((String) null, parentElement);
     }
 
 
@@ -34,9 +34,29 @@ public class User3 extends SimpleSongElement {
 
 
 
+    /**
+     * Copy constructor.
+     * 
+     * @param elementToClone Element to copy.
+     * @param newParentElement A song element to be used as the parent of the cloned object.
+     */
+    public User3(User3 elementToClone, SongElement newParentElement) {
+        super(elementToClone, newParentElement);
+    }
+
+
+
     @Override
     public String getName() {
         return "user3";
+    }
+
+
+
+    @Override
+    public SongElement clone(SongElement newParentElement) {
+        User3 songElement = new User3(this, newParentElement);
+        return songElement;
     }
 
 

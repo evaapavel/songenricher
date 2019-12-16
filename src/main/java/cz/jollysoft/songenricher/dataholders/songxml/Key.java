@@ -17,7 +17,7 @@ public class Key extends SimpleSongElement {
      * @param parentElement Parent element of this element.
      */
     public Key(SongElement parentElement) {
-        this(null, parentElement);
+        this((String) null, parentElement);
     }
 
 
@@ -34,9 +34,29 @@ public class Key extends SimpleSongElement {
 
 
 
+    /**
+     * Copy constructor.
+     * 
+     * @param elementToClone Element to copy.
+     * @param newParentElement A song element to be used as the parent of the cloned object.
+     */
+    public Key(Key elementToClone, SongElement newParentElement) {
+        super(elementToClone, newParentElement);
+    }
+
+
+
     @Override
     public String getName() {
         return "key";
+    }
+
+
+
+    @Override
+    public SongElement clone(SongElement newParentElement) {
+        Key songElement = new Key(this, newParentElement);
+        return songElement;
     }
 
 

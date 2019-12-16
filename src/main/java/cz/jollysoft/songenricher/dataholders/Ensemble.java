@@ -13,7 +13,7 @@ import java.nio.file.Path;
  * 
  * @author Pavel Foltyn
  */
-public class Ensemble {
+public class Ensemble implements Cloneable {
 
 
 
@@ -25,10 +25,32 @@ public class Ensemble {
 
 
 
+    /**
+     * Constructor.
+     * 
+     * @param path Path to the file.
+     */
     public Ensemble(Path path) {
         this.path = path;
         lines = new ArrayList<>();
+    }
 
+
+
+    /**
+     * Copy constructor.
+     * 
+     * @param ensemble Ensemble to copy.
+     */
+    @SuppressWarnings("unchecked")
+    public Ensemble(Ensemble ensemble) throws CloneNotSupportedException {
+        this.path = ensemble.path;
+        if (ensemble.lines != null) {
+            //this.lines = (List<String>) ensemble.lines.clone();
+            this.lines = (List<String>) ((ArrayList<String>) ensemble.lines).clone();
+        } else {
+            this.lines = null;
+        }
     }
 
 
@@ -47,6 +69,21 @@ public class Ensemble {
 
     public void setLines(List<String> lines) {
         this.lines = lines;
+    }
+
+
+
+    //@SuppressWarnings("unchecked")
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        //Ensemble ensemble = new Ensemble(this.path);
+        //if (this.lines != null) {
+        //    ensemble.lines = (List<String>) ((ArrayList<String>) this.lines).clone();
+        //} else {
+        //    ensemble.lines = null;
+        //}
+        Ensemble ensemble = new Ensemble(this);
+        return ensemble;
     }
 
 

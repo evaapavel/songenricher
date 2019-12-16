@@ -17,7 +17,7 @@ public class Theme extends SimpleSongElement {
      * @param parentElement Parent element of this element.
      */
     public Theme(SongElement parentElement) {
-        this(null, parentElement);
+        this((String) null, parentElement);
     }
 
 
@@ -34,9 +34,29 @@ public class Theme extends SimpleSongElement {
 
 
 
+    /**
+     * Copy constructor.
+     * 
+     * @param elementToClone Element to copy.
+     * @param newParentElement A song element to be used as the parent of the cloned object.
+     */
+    public Theme(Theme elementToClone, SongElement newParentElement) {
+        super(elementToClone, newParentElement);
+    }
+
+
+
     @Override
     public String getName() {
         return "theme";
+    }
+
+
+
+    @Override
+    public SongElement clone(SongElement newParentElement) {
+        Theme songElement = new Theme(this, newParentElement);
+        return songElement;
     }
 
 
