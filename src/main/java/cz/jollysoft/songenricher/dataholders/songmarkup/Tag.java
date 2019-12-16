@@ -23,5 +23,24 @@ public class Tag extends Section {
 
 
 
+    /**
+     * Copy constructor.
+     * 
+     * @param sectionToCopy Section to copy.
+     */
+    public Tag(Tag sectionToCopy) {
+        super(sectionToCopy);
+    }
+
+
+
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        Tag section = new Tag(this);
+        return section;
+    }
+
+
+
 }
 

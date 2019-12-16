@@ -23,5 +23,24 @@ public class Chorus extends Section {
 
 
 
+    /**
+     * Copy constructor.
+     * 
+     * @param sectionToCopy Section to copy.
+     */
+    public Chorus(Chorus sectionToCopy) {
+        super(sectionToCopy);
+    }
+
+
+
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        Chorus section = new Chorus(this);
+        return section;
+    }
+
+
+
 }
 

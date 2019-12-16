@@ -23,5 +23,24 @@ public class Verse extends Section {
 
 
 
+    /**
+     * Copy constructor.
+     * 
+     * @param sectionToCopy Section to copy.
+     */
+    public Verse(Verse sectionToCopy) {
+        super(sectionToCopy);
+    }
+
+
+
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        Verse section = new Verse(this);
+        return section;
+    }
+
+
+
 }
 

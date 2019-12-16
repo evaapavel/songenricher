@@ -64,7 +64,7 @@ public abstract class SongElement {
      * @param newParentElement New parent element to be used for the new object.
      * @return Returns the song element newly created (as a clone of this).
      */
-    public abstract SongElement clone(SongElement newParentElement);
+    public abstract SongElement clone(SongElement newParentElement) throws CloneNotSupportedException;
 
 
 

@@ -23,5 +23,24 @@ public class Bridge extends Section {
 
 
 
+    /**
+     * Copy constructor.
+     * 
+     * @param sectionToCopy Section to copy.
+     */
+    public Bridge(Bridge sectionToCopy) {
+        super(sectionToCopy);
+    }
+
+
+
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        Bridge section = new Bridge(this);
+        return section;
+    }
+
+
+
 }
 

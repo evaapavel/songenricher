@@ -25,7 +25,7 @@ import static cz.jollysoft.songenricher.constants.AppConstants.NEWLINE_SEQUENCE;
  * 
  * @author Pavel Foltyn
  */
-public class Section implements Cloneable {
+public abstract class Section implements Cloneable {
 
 
 
@@ -58,6 +58,21 @@ public class Section implements Cloneable {
         this.name = name.toUpperCase();
         parseName();
         this.lyricsText = lyricsText;
+    }
+
+
+
+    /**
+     * Copy constructor.
+     * 
+     * @param section Section to copy.
+     */
+    public Section(Section section) {
+        this.name = section.name;
+        this.sectionCode = section.sectionCode;
+        this.sectionNumber = section.sectionNumber;
+        this.sectionPart = section.sectionPart;
+        this.lyricsText = section.lyricsText;
     }
 
 
@@ -136,6 +151,11 @@ public class Section implements Cloneable {
         // return sectionPart;
         return sectionPart;
     }
+
+
+
+    @Override
+    public abstract Object clone() throws CloneNotSupportedException;
 
 
 

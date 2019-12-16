@@ -42,7 +42,7 @@ public class SongRoot extends CompositeSongElement implements Cloneable {
      * @param elementToClone Element to copy.
      * @param newParentElement A song element to be used as the parent of the cloned object.
      */
-    public SongRoot(SongRoot elementToClone, SongElement newParentElement) {
+    public SongRoot(SongRoot elementToClone, SongElement newParentElement) throws CloneNotSupportedException {
         super(elementToClone, newParentElement);
         if (elementToClone.subelementsByName != null) {
             this.subelementsByName = new HashMap<>();
@@ -130,7 +130,7 @@ public class SongRoot extends CompositeSongElement implements Cloneable {
 
 
     @Override
-    public SongElement clone(SongElement newParentElement) {
+    public SongElement clone(SongElement newParentElement) throws CloneNotSupportedException {
         // No parent element.
         SongRoot songRoot = new SongRoot(this, (SongElement) null);
         return songRoot;

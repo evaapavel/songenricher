@@ -47,17 +47,21 @@ public class Lyrics extends SimpleSongElement {
 
 
 
+    //@SuppressWarnings("unchecked")
     /**
      * Copy constructor.
      * 
      * @param elementToClone Element to copy.
      * @param newParentElement A song element to be used as the parent of the cloned object.
      */
-    @SuppressWarnings("unchecked")
-    public Lyrics(Lyrics elementToClone, SongElement newParentElement) {
+    public Lyrics(Lyrics elementToClone, SongElement newParentElement) throws CloneNotSupportedException {
         super(elementToClone, newParentElement);
         if (elementToClone.sections != null) {
-            this.sections = (List<Section>) ((ArrayList<Section>) elementToClone.sections).clone();
+            //this.sections = (List<Section>) ((ArrayList<Section>) elementToClone.sections).clone();
+            this.sections = new ArrayList<>();
+            for (Section section : elementToClone.sections) {
+                this.sections.add((Section) section.clone());
+            }
         } else {
             this.sections = null;
         }
@@ -83,7 +87,7 @@ public class Lyrics extends SimpleSongElement {
 
 
     @Override
-    public SongElement clone(SongElement newParentElement) {
+    public SongElement clone(SongElement newParentElement) throws CloneNotSupportedException {
         Lyrics songElement = new Lyrics(this, newParentElement);
         return songElement;
     }

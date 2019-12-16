@@ -23,5 +23,24 @@ public class PreChorus extends Section {
 
 
 
+    /**
+     * Copy constructor.
+     * 
+     * @param sectionToCopy Section to copy.
+     */
+    public PreChorus(PreChorus sectionToCopy) {
+        super(sectionToCopy);
+    }
+
+
+
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        PreChorus section = new PreChorus(this);
+        return section;
+    }
+
+
+
 }
 
