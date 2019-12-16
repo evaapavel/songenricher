@@ -177,8 +177,9 @@ public class SongEnricher implements UnaryOperator<Song> {
         enrichedSong.getSongRoot().getLyrics().getSections().stream()
             .filter(section -> section instanceof Verse)
             .map(section -> (Verse) section)
-            .map(verse -> {
-                if ((verse.getSectionPart() == null) || ("A".equals(verse.getSectionPart()))) {
+            //.map(verse -> {
+            .forEach(verse -> {
+                    if ((verse.getSectionPart() == null) || ("A".equals(verse.getSectionPart()))) {
                     int verseNumber = verse.getSectionNumber().intValue();
                     String lyricsOriginal = verse.getLyricsText();
                     String lyricsEnriched = lyricsOriginal;
@@ -191,7 +192,7 @@ public class SongEnricher implements UnaryOperator<Song> {
                     }
                     verse.setLyricsText(lyricsEnriched);
                 }
-                return verse;
+                //return verse;
             })
         ;
 
@@ -203,8 +204,9 @@ public class SongEnricher implements UnaryOperator<Song> {
         enrichedSong.getSongRoot().getLyrics().getSections().stream()
             .filter(section -> section instanceof Chorus)
             .map(section -> (Chorus) section)
-            .map(chorus -> {
-                if ((chorus.getSectionPart() == null) || ("A".equals(chorus.getSectionPart()))) {
+            //.map(chorus -> {
+            .forEach(chorus -> {
+                    if ((chorus.getSectionPart() == null) || ("A".equals(chorus.getSectionPart()))) {
                     String lyricsOriginal = chorus.getLyricsText();
                     String lyricsEnriched = lyricsOriginal;
                     if (chorus.getSectionNumber() != null) {
@@ -229,7 +231,7 @@ public class SongEnricher implements UnaryOperator<Song> {
                     }
                     chorus.setLyricsText(lyricsEnriched);
                 }
-                return chorus;
+                //return chorus;
             })
         ;
 
