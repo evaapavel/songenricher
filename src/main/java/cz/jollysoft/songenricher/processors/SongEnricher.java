@@ -11,6 +11,7 @@ import cz.jollysoft.songenricher.dataholders.Ensemble;
 import cz.jollysoft.songenricher.dataholders.Song;
 import cz.jollysoft.songenricher.dataholders.songmarkup.Chorus;
 import cz.jollysoft.songenricher.dataholders.songmarkup.Verse;
+import cz.jollysoft.songenricher.exceptions.PipelineException;
 import cz.jollysoft.songenricher.transformers.Lyricser;
 
 
@@ -76,7 +77,8 @@ public class SongEnricher implements UnaryOperator<Song> {
         try {
             enrichedSong = (Song) song.clone();
         } catch (CloneNotSupportedException e) {
-            throw new RuntimeException(String.format("The given song (%s) cannot be cloned: %s", song.toString(), e.toString()), e);
+            //throw new RuntimeException(String.format("The given song (%s) cannot be cloned: %s", song.toString(), e.toString()), e);
+            throw new PipelineException(String.format("The given song (%s) cannot be cloned: %s", song.toString(), e.toString()), e);
         }
 
         // Set up a new path for the output ensemble.
@@ -89,9 +91,9 @@ public class SongEnricher implements UnaryOperator<Song> {
         addNumbering(enrichedSong);
 
         // Serialize the song sections back to the lyrics song element.
-        Lyricser lyricser = new Lyricser(song);
+        Lyricser lyricser = new Lyricser(enrichedSong);
         lyricser.synthesizeLyrics();
-        song = lyricser.getSong();
+        enrichedSong = lyricser.getSong();
 
         // Done!
 

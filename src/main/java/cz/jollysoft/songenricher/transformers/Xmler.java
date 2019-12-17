@@ -1237,7 +1237,9 @@ public class Xmler {
         printXmlPiece(xmlDocument.getDocumentElement(), 0, false, false);
 
         // Extract printed data.
-        String printedText = printWriter.toString();
+        //String printedText = printWriter.toString();
+        printWriter.flush();
+        String printedText = stringWriter.toString();
         lines = convertToLines(printedText);
 
         // Close the writer.
