@@ -76,7 +76,8 @@ public class Lyricser {
     private String synthesize(List<Section> sections) {
         Optional<String> synthesizedLyrics = sections.stream()
             .map(sec -> sec.toLyrics())
-            .reduce((acc, lyr) -> acc.concat(NEWLINE_SEQUENCE).concat(lyr))
+            //.reduce((acc, lyr) -> acc.concat(NEWLINE_SEQUENCE).concat(lyr))
+            .reduce((acc, lyr) -> acc.concat(lyr))
         ;
         return synthesizedLyrics.orElse("");
     }

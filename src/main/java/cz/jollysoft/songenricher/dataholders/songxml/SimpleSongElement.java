@@ -83,8 +83,10 @@ public abstract class SimpleSongElement extends SongElement {
     @Override
     public Element toXmlElement(Element parentXmlElement) {
         Element xmlElement = new Element(getName(), parentXmlElement);
-        Text xmlText = new Text(innerText, xmlElement);
-        xmlElement.addText(xmlText);
+        if (innerText != null) {
+            Text xmlText = new Text(innerText, xmlElement);
+            xmlElement.addText(xmlText);
+        }
         return xmlElement;
     }
 

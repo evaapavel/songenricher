@@ -4,6 +4,7 @@ package cz.jollysoft.songenricher.dataholders.songxml;
 
 import java.util.Optional;
 
+import cz.jollysoft.songenricher.xmlpieces.Attribute;
 import cz.jollysoft.songenricher.xmlpieces.Element;
 
 
@@ -101,6 +102,15 @@ public class Capo extends SimpleSongElement {
         boolean print = Boolean.parseBoolean(element.getAttributes().get(0).getValue());
         this.print = print;
 
+    }
+
+
+
+    @Override
+    public Element toXmlElement(Element parentXmlElement) {
+        Element xmlElement = super.toXmlElement(parentXmlElement);
+        xmlElement.getAttributes().add(new Attribute("print", new Boolean(print).toString()));
+        return xmlElement;
     }
 
 
