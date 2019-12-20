@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <song>
-  <title>56. V časem svém</title>
+  <title>56. V čase svém (3 sloky)</title>
   <author></author>
   <copyright></copyright>
   <hymn_number>56</hymn_number>
@@ -16,8 +16,9 @@
   <theme></theme>
   <tempo></tempo>
   <time_sig></time_sig>
-  <lyrics>[V1]
- V čase svém, v čase svém,
+  <lyrics>
+[V1]
+ 1. V čase svém, v čase svém,
  Bůh vše stvořil nádherné
  v čase svém.
  Pane, uč mne každý den
@@ -26,7 +27,7 @@
  v čase svém.
  
 [V2]
- V čase svém, v čase svém,
+ 2. V čase svém, v čase svém,
  činíš všechno nádherné
  v čase svém.
  Pane, život nesu Ti,
@@ -35,11 +36,11 @@
  v čase Tvém.
  
 [V3]
- V čase svém, v čase svém
+ 3. V čase svém, v čase svém
  činíš všechno nádherné
  v čase svém.
  Pane, uč  mne každý den
  poznávat jen cesty Tvé,
  věřit Ti, že činíš vše
- v čase svém.
- </lyrics></song>
+ v čase svém.</lyrics>
+</song>
